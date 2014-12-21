@@ -1,5 +1,6 @@
 package com.flozano.statsd.netty;
 
+import static java.util.Objects.requireNonNull;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -29,13 +30,13 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	private final Channel channel;
 	private final Timer flushTimer;
 
-	private boolean defaultEventLoopGroup = false;
+	private final boolean defaultEventLoopGroup;
 	private final EventLoopGroup eventLoopGroup;
 
-	public NettyStatsDClientImpl(String host, int port,
-			EventLoopGroup eventLoopGroup) {
-
-		this.eventLoopGroup = eventLoopGroup;
+	private NettyStatsDClientImpl(String host, int port,
+			EventLoopGroup eventLoopGroup, boolean defaultEventLoopGroup) {
+		this.eventLoopGroup = requireNonNull(eventLoopGroup);
+		this.defaultEventLoopGroup = defaultEventLoopGroup;
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
 		bootstrap.channel(NioDatagramChannel.class);
@@ -56,14 +57,16 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 			throw new RuntimeException(e);
 		}
 		flushTimer = new HashedWheelTimer();
-		flushTimer.newTimeout(timeout -> {
-			channel.flush();
-		}, 1, TimeUnit.SECONDS);
+		flushTimer.newTimeout(timeout -> channel.flush(), 1, TimeUnit.SECONDS);
+	}
+
+	public NettyStatsDClientImpl(String host, int port,
+			EventLoopGroup eventLoopGroup) {
+		this(host, port, eventLoopGroup, false);
 	}
 
 	public NettyStatsDClientImpl(String host, int port) {
-		this(host, port, new NioEventLoopGroup());
-		this.defaultEventLoopGroup = true;
+		this(host, port, new NioEventLoopGroup(), true);
 	}
 
 	@Override
