@@ -48,7 +48,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 				ch.pipeline().addLast(
 						"logging-udp",
 						new LoggingHandler(NettyStatsDClientImpl.class,
-								LogLevel.WARN));
+								LogLevel.TRACE));
 			}
 		});
 		try {
@@ -74,7 +74,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 		for (Metric m : metrics) {
 			channel.write(m).addListener(
 					f -> {
-						LOGGER.log(Level.WARNING, "Message sent {1}: {0}",
+						LOGGER.log(Level.FINE, "Message sent {1}: {0}",
 								new Object[] { m, f.isDone() });
 					});
 		}
