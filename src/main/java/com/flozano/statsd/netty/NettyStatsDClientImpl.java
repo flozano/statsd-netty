@@ -2,8 +2,10 @@ package com.flozano.statsd.netty;
 
 import static java.util.Objects.requireNonNull;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -40,6 +42,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
 		bootstrap.channel(NioDatagramChannel.class);
+		bootstrap.option(ChannelOption.ALLOCATOR, new PooledByteBufAllocator());
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 
 			@Override
@@ -56,6 +59,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+		
 		flushTimer = new HashedWheelTimer();
 		flushTimer.newTimeout(timeout -> channel.flush(), 1, TimeUnit.SECONDS);
 	}
