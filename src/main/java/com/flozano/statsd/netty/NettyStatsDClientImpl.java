@@ -2,15 +2,11 @@ package com.flozano.statsd.netty;
 
 import static java.util.Objects.requireNonNull;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 
@@ -43,18 +39,14 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
 		bootstrap.channel(NioDatagramChannel.class);
-		bootstrap.option(ChannelOption.ALLOCATOR, new PooledByteBufAllocator());
+		// bootstrap.option(ChannelOption.ALLOCATOR, new
+		// PooledByteBufAllocator());
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline()
-						.addFirst("encoder", new MetricToBytesEncoder())
-						.addLast(
-								"logging-udp",
-								new LoggingHandler(NettyStatsDClientImpl.class,
-										LogLevel.DEBUG))
-						.addLast("udp", new BytesToUDPEncoder(host, port));
+				ch.pipeline().addLast("udp", new BytesToUDPEncoder(host, port))
+						.addLast("encoder", new MetricToBytesEncoder());
 			}
 		});
 		try {
@@ -79,9 +71,10 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	@Override
 	public void send(Metric... metrics) {
 		for (Metric m : metrics) {
-			channel.write(m).addListener(
-					f -> LOGGER.trace("Message sent (future={}, message={})",
-							f, m));
+			channel.write(m).addListener(f -> {
+				f.get();
+				LOGGER.trace("Message sent (future={}, message={})", f, m);
+			});
 		}
 	}
 
