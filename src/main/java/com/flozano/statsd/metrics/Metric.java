@@ -2,7 +2,6 @@ package com.flozano.statsd.metrics;
 
 import static java.util.Objects.requireNonNull;
 
-import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 public abstract class Metric {
@@ -41,11 +40,6 @@ public abstract class Metric {
 	}
 
 	public abstract String getSuffix();
-
-	@Deprecated
-	public byte[] getBytes() {
-		return toString().getBytes(StandardCharsets.UTF_8);
-	}
 
 	@Override
 	public String toString() {
