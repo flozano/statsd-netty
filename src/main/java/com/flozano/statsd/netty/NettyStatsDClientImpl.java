@@ -72,7 +72,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	public void send(Metric... metrics) {
 		for (Metric m : metrics) {
 			channel.write(m).addListener(f -> {
-				f.get();
+				//f.get();
 				LOGGER.trace("Message sent (future={}, message={})", f, m);
 			});
 		}
