@@ -18,11 +18,11 @@ public class IntegrationTest {
 		try (DummyUDPServer server = new DummyUDPServer(8125)) {
 			try (NettyStatsDClientImpl c = new NettyStatsDClientImpl(
 					"127.0.0.1", 8125)) {
-				for (int i = 0; i < 25; i++) {
+				for (int i = 0; i < NUMBER_OF_ITEMS; i++) {
 					c.send(new Count("example", 1));
 				}
-				await().atMost(5, TimeUnit.SECONDS).until(
-						() -> server.getItemsSnapshot().size() == 25);
+				await().atMost(5, TimeUnit.SECONDS)
+						.until(() -> server.getItemsSnapshot().size() == NUMBER_OF_ITEMS);
 			}
 		}
 	}
