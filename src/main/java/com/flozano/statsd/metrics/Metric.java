@@ -3,6 +3,7 @@ package com.flozano.statsd.metrics;
 import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 public abstract class Metric {
 	private final long value;
@@ -41,18 +42,27 @@ public abstract class Metric {
 
 	public abstract String getSuffix();
 
+	@Deprecated
+	public byte[] getBytes() {
+		return toString().getBytes(StandardCharsets.UTF_8);
+	}
+
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(name).append(':')
-				.append(getValue()).append('|').append(getSuffix());
-		if (sampleRate != null) {
-			sb = sb.append("|@").append(sampleRate);
-		}
-
+		final StringBuilder sb = new StringBuilder();
+		toStringParts((part) -> sb.append(part));
 		return sb.toString();
 	}
 
-	public byte[] getBytes() {
-		return toString().getBytes(StandardCharsets.UTF_8);
+	public void toStringParts(Consumer<String> parts) {
+		parts.accept(name);
+		parts.accept(":");
+		parts.accept(Long.toString(getValue()));
+		parts.accept("|");
+		parts.accept(getSuffix());
+		if (sampleRate != null) {
+			parts.accept("|@");
+			parts.accept(Double.toString(sampleRate));
+		}
 	}
 }

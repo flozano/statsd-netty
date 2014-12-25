@@ -9,19 +9,10 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import com.flozano.statsd.metrics.Metric;
-
-@Deprecated
-/**
- * Use BytesToUDPEncoder instead
- * 
- * @author flozano
- *
- */
-public class UDPEncoder extends MessageToMessageEncoder<Metric> {
+public class BytesToUDPEncoder extends MessageToMessageEncoder<ByteBuf> {
 	private final InetSocketAddress targetAddress;
 
-	public UDPEncoder(String host, int port) {
+	public BytesToUDPEncoder(String host, int port) {
 		this.targetAddress = new InetSocketAddress(requireNonNull(host),
 				validatePort(port));
 	}
@@ -34,14 +25,9 @@ public class UDPEncoder extends MessageToMessageEncoder<Metric> {
 	}
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, Metric msg,
+	protected void encode(ChannelHandlerContext ctx, ByteBuf msg,
 			List<Object> out) throws Exception {
-		out.add(new DatagramPacket(toByteBuf(ctx, msg), targetAddress));
+		out.add(new DatagramPacket(msg, targetAddress));
 	}
 
-	protected ByteBuf toByteBuf(ChannelHandlerContext ctx, Metric metric) {
-		// return Unpooled.copiedBuffer(metric.getBytes());
-		byte[] value = metric.getBytes();
-		return ctx.alloc().buffer(value.length, value.length).writeBytes(value);
-	}
 }

@@ -47,7 +47,9 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast("udp", new UDPEncoder(host, port));
+				ch.pipeline().addLast("encoder", new MetricEncoder());
+				ch.pipeline().addLast("udp", new BytesToUDPEncoder(host, port));
+				// ch.pipeline().addLast("udp", new UDPEncoder(host, port));
 				ch.pipeline().addLast(
 						"logging-udp",
 						new LoggingHandler(NettyStatsDClientImpl.class,
@@ -59,7 +61,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 		flushTimer = new HashedWheelTimer();
 		flushTimer.newTimeout(timeout -> channel.flush(), 1, TimeUnit.SECONDS);
 	}
