@@ -14,7 +14,7 @@ public class DummyTest {
 			for (int i = 0; i < 10; i++) {
 				c.send(new Count("example", 1));
 			}
-			Thread.sleep(100000);
+			Thread.sleep(1000000);
 		}
 	}
 }

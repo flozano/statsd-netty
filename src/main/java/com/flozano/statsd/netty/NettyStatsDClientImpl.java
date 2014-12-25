@@ -17,16 +17,17 @@ import io.netty.util.Timer;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.flozano.statsd.StatsDClient;
 import com.flozano.statsd.metrics.Metric;
 
 public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(NettyStatsDClientImpl.class.getName());
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(NettyStatsDClientImpl.class);
 
 	private final Bootstrap bootstrap;
 	private final Channel channel;
@@ -48,12 +49,12 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline()
-						.addFirst("encoder", new MetricEncoder())
-						.addLast("udp", new BytesToUDPEncoder(host, port))
+						.addFirst("encoder", new MetricToBytesEncoder())
 						.addLast(
 								"logging-udp",
 								new LoggingHandler(NettyStatsDClientImpl.class,
-										LogLevel.INFO));
+										LogLevel.DEBUG))
+						.addLast("udp", new BytesToUDPEncoder(host, port));
 			}
 		});
 		try {
@@ -79,10 +80,8 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	public void send(Metric... metrics) {
 		for (Metric m : metrics) {
 			channel.write(m).addListener(
-					f -> {
-						LOGGER.log(Level.FINE, "Message sent {1}: {0}",
-								new Object[] { m, f.isDone() });
-					});
+					f -> LOGGER.trace("Message sent (future={}, message={})",
+							f, m));
 		}
 	}
 

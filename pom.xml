@@ -7,9 +7,11 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<junit.version>4.11</junit.version>
+		<logback.version>1.1.2</logback.version>
 		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
 		<mockito.version>1.10.17</mockito.version>
 		<netty.version>4.0.24.Final</netty.version>
+		<slf4j.version>1.7.9</slf4j.version>
 	</properties>
 
 	<dependencies>
@@ -31,9 +33,14 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.1.2</version>
+			<version>${logback.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
