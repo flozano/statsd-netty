@@ -1,6 +1,9 @@
 package com.flozano.statsd.netty;
 
 import static com.jayway.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,7 +14,7 @@ import com.flozano.statsd.mock.DummyUDPServer;
 
 public class IntegrationTest {
 
-	static int NUMBER_OF_ITEMS = 25;
+	static int NUMBER_OF_ITEMS = 2500;
 
 	@Test
 	public void test() throws Exception {
@@ -23,6 +26,8 @@ public class IntegrationTest {
 				}
 				await().atMost(5, TimeUnit.SECONDS)
 						.until(() -> server.getItemsSnapshot().size() == NUMBER_OF_ITEMS);
+				assertThat(server.getItemsSnapshot(),
+						everyItem(equalTo("example:1|c")));
 			}
 		}
 	}
