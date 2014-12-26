@@ -1,9 +1,11 @@
 package com.flozano.statsd;
 
+import java.util.concurrent.CompletableFuture;
+
 import com.flozano.statsd.metrics.Metric;
 
 public interface StatsDClient {
 
-	void send(Metric... metrics);
+	CompletableFuture<Void> send(Metric... metrics);
 
 }

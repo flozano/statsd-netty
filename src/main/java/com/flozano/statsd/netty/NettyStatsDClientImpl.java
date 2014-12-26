@@ -14,6 +14,9 @@ import io.netty.util.Timer;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -70,13 +73,24 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	}
 
 	@Override
-	public void send(Metric... metrics) {
+	public CompletableFuture<Void> send(Metric... metrics) {
+		ArrayList<CompletableFuture<Void>> cfs = new ArrayList<CompletableFuture<Void>>(
+				metrics.length);
 		for (Metric m : metrics) {
+			CompletableFuture<Void> cf = new CompletableFuture<>();
 			channel.write(m).addListener(f -> {
-				// f.get();
-					LOGGER.trace("Message sent (future={}, message={})", f, m);
-				});
+				LOGGER.trace("Message sent (future={}, message={})", f, m);
+				try {
+					f.get();
+					cf.complete(null);
+				} catch (ExecutionException e) {
+					cf.completeExceptionally(e.getCause());
+				}
+			});
+			cfs.add(cf);
 		}
+		return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs
+				.size()]));
 	}
 
 	@Override

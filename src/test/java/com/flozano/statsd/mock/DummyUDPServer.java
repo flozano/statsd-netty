@@ -12,6 +12,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 
 public class DummyUDPServer implements AutoCloseable {
 
@@ -20,8 +21,10 @@ public class DummyUDPServer implements AutoCloseable {
 
 	private final EventLoopGroup eventLoopGroup;
 	private final CopyOnWriteArrayList<String> items = new CopyOnWriteArrayList<>();
+	private final CountDownLatch latch;
 
-	public DummyUDPServer(int port) {
+	public DummyUDPServer(int port, int numberOfItems) {
+		latch = new CountDownLatch(numberOfItems);
 		eventLoopGroup = new NioEventLoopGroup(1);
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
@@ -32,7 +35,7 @@ public class DummyUDPServer implements AutoCloseable {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline().addLast("udp", new UDPToStringDecoder())
-						.addLast("store", new ServerHandler(items));
+						.addLast("store", new ServerHandler(items, latch));
 			}
 		});
 		try {
@@ -59,5 +62,9 @@ public class DummyUDPServer implements AutoCloseable {
 			e.printStackTrace();
 		}
 		eventLoopGroup.shutdownGracefully();
+	}
+	
+	public void waitForItemsReceived() throws InterruptedException {
+		latch.await();
 	}
 }

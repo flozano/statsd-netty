@@ -4,6 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +17,11 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
 
 	private final List<String> received;
 
-	public ServerHandler(List<String> received) {
-		this.received = received;
+	private CountDownLatch latch;
+
+	public ServerHandler(List<String> received, CountDownLatch latch) {
+		this.received = Objects.requireNonNull(received);
+		this.latch = Objects.requireNonNull(latch);
 	}
 
 	@Override
@@ -24,6 +29,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
 			throws Exception {
 		LOGGER.info("Received message: {}", msg);
 		received.add(msg);
+		latch.countDown();
 	}
 
 }

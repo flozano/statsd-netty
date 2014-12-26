@@ -1,35 +1,77 @@
 package com.flozano.statsd.netty;
 
-import static com.jayway.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.flozano.statsd.metrics.Count;
+import com.flozano.statsd.metrics.Gauge;
+import com.flozano.statsd.metrics.Metric;
 import com.flozano.statsd.mock.DummyUDPServer;
 
+@RunWith(Parameterized.class)
 public class IntegrationTest {
 
 	static final int PORT = 8125;
-	static final int NUMBER_OF_ITEMS = 2500;
+
+	@Parameters
+	public static Collection<Object[]> params() {
+		return Arrays.asList(new Object[] { 1 }, new Object[] { 10 },
+				new Object[] { 100 }, new Object[] { 1000 },
+				new Object[] { 10000 }, new Object[] { 10000 });
+	}
+
+	private final int numberOfItems;
+
+	public IntegrationTest(int numberOfItems) {
+		this.numberOfItems = numberOfItems;
+	}
 
 	@Test
-	public void test() throws Exception {
-		try (DummyUDPServer server = newServer()) {
+	public void testManyCalls() throws Exception {
+		try (DummyUDPServer server = newServer(numberOfItems)) {
 			try (NettyStatsDClientImpl c = newClient()) {
-				for (int i = 0; i < NUMBER_OF_ITEMS; i++) {
-					c.send(new Count("example", 1));
+				List<CompletableFuture<Void>> css = new ArrayList<>(
+						numberOfItems);
+				for (int i = 0; i < numberOfItems; i++) {
+					css.add(c.send(new Count("example", 1)));
 				}
-				await().atMost(5, TimeUnit.SECONDS)
-						.until(() -> server.getItemsSnapshot().size() == NUMBER_OF_ITEMS);
+				CompletableFuture.allOf(
+						css.toArray(new CompletableFuture[numberOfItems]))
+						.get();
+				server.waitForItemsReceived();
 				assertThat(server.getItemsSnapshot(),
 						everyItem(equalTo("example:1|c")));
-				assertEquals(NUMBER_OF_ITEMS, server.getItemsSnapshot().size());
+				assertEquals(numberOfItems, server.getItemsSnapshot().size());
+			}
+		}
+	}
+
+	@Test
+	public void testSingleCall() throws Exception {
+		try (DummyUDPServer server = newServer(numberOfItems)) {
+			try (NettyStatsDClientImpl c = newClient()) {
+				Metric[] items = new Metric[numberOfItems];
+				for (int i = 0; i < numberOfItems; i++) {
+					items[i] = new Gauge("example", 2);
+				}
+				c.send(items).get();
+				server.waitForItemsReceived();
+				assertThat(server.getItemsSnapshot(),
+						everyItem(equalTo("example:2|g")));
+				assertEquals(numberOfItems, server.getItemsSnapshot().size());
 			}
 		}
 	}
@@ -38,7 +80,7 @@ public class IntegrationTest {
 		return new NettyStatsDClientImpl("127.0.0.1", PORT);
 	}
 
-	private DummyUDPServer newServer() {
-		return new DummyUDPServer(PORT);
+	private DummyUDPServer newServer(int numberOfItems) {
+		return new DummyUDPServer(PORT, numberOfItems);
 	}
 }
