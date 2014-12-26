@@ -39,6 +39,7 @@ public class DummyUDPServer implements AutoCloseable {
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
 		bootstrap.channel(NioDatagramChannel.class);
+		bootstrap.option(ChannelOption.SO_RCVBUF, 1024*1024);
 		bootstrap.option(ChannelOption.ALLOCATOR, new PooledByteBufAllocator());
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 
