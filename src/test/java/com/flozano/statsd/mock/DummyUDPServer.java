@@ -8,13 +8,21 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.util.HashedWheelTimer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DummyUDPServer implements AutoCloseable {
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(DummyUDPServer.class);
 
 	private final Bootstrap bootstrap;
 	private final Channel channel;
@@ -22,6 +30,7 @@ public class DummyUDPServer implements AutoCloseable {
 	private final EventLoopGroup eventLoopGroup;
 	private final CopyOnWriteArrayList<String> items = new CopyOnWriteArrayList<>();
 	private final CountDownLatch latch;
+	private HashedWheelTimer timer;
 
 	public DummyUDPServer(int port, int numberOfItems) {
 		latch = new CountDownLatch(numberOfItems);
@@ -43,7 +52,10 @@ public class DummyUDPServer implements AutoCloseable {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-
+		timer = new HashedWheelTimer();
+		timer.newTimeout(
+				timeout -> LOGGER.info("Pending to receive: {}",
+						latch.getCount()), 2, TimeUnit.SECONDS);
 	}
 
 	public List<String> getItemsSnapshot() {
@@ -62,9 +74,10 @@ public class DummyUDPServer implements AutoCloseable {
 			e.printStackTrace();
 		}
 		eventLoopGroup.shutdownGracefully();
+		timer.stop();
 	}
 
 	public void waitForAllItemsReceived() throws InterruptedException {
-		latch.await();
+		latch.await(2, TimeUnit.MINUTES);
 	}
 }

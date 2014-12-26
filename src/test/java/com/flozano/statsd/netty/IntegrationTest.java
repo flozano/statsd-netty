@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,8 +50,8 @@ public class IntegrationTest {
 					css.add(c.send(new Count("example", 1)));
 				}
 				CompletableFuture.allOf(
-						css.toArray(new CompletableFuture[numberOfItems]))
-						.get();
+						css.toArray(new CompletableFuture[numberOfItems])).get(
+						2, TimeUnit.MINUTES);
 				server.waitForAllItemsReceived();
 				assertThat(server.getItemsSnapshot(),
 						everyItem(equalTo("example:1|c")));
@@ -67,7 +68,7 @@ public class IntegrationTest {
 				for (int i = 0; i < numberOfItems; i++) {
 					items[i] = new Gauge("example", 2);
 				}
-				c.send(items).get();
+				c.send(items).get(2, TimeUnit.MINUTES);
 				server.waitForAllItemsReceived();
 				assertThat(server.getItemsSnapshot(),
 						everyItem(equalTo("example:2|g")));
