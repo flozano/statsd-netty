@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.HashedWheelTimer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -28,7 +29,7 @@ public class DummyUDPServer implements AutoCloseable {
 	private final Channel channel;
 
 	private final EventLoopGroup eventLoopGroup;
-	private final CopyOnWriteArrayList<String> items = new CopyOnWriteArrayList<>();
+	private final Collection<String> items = new CopyOnWriteArrayList<>();
 	private final CountDownLatch latch;
 	private HashedWheelTimer timer;
 

@@ -30,8 +30,7 @@ public class IntegrationTest {
 	@Parameters
 	public static Collection<Object[]> params() {
 		return Arrays.asList(new Object[] { 1 }, new Object[] { 10 },
-				new Object[] { 100 }, new Object[] { 1000 },
-				new Object[] { 10000 }, new Object[] { 10000 });
+				new Object[] { 100 }, new Object[] { 1000 });
 	}
 
 	private final int numberOfItems;

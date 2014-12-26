@@ -3,7 +3,7 @@ package com.flozano.statsd.mock;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
@@ -15,11 +15,11 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(ServerHandler.class);
 
-	private final List<String> received;
+	private final Collection<String> received;
 
 	private CountDownLatch latch;
 
-	public ServerHandler(List<String> received, CountDownLatch latch) {
+	public ServerHandler(Collection<String> received, CountDownLatch latch) {
 		this.received = Objects.requireNonNull(received);
 		this.latch = Objects.requireNonNull(latch);
 	}
