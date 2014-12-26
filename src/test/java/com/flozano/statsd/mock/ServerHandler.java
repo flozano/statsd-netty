@@ -27,7 +27,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, String msg)
 			throws Exception {
-		LOGGER.info("Received message: {}", msg);
+		LOGGER.trace("Received message: {}", msg);
 		received.add(msg);
 		latch.countDown();
 	}

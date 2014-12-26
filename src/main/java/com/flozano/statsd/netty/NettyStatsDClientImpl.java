@@ -44,6 +44,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
 		bootstrap.channel(NioDatagramChannel.class);
+		bootstrap.option(ChannelOption.SO_SNDBUF, 5 * 1024 * 1024);
 		bootstrap.option(ChannelOption.ALLOCATOR, new PooledByteBufAllocator());
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 
@@ -79,15 +80,24 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 				metrics.length);
 		for (Metric m : metrics) {
 			CompletableFuture<Void> cf = new CompletableFuture<>();
-			channel.write(m).addListener(f -> {
-				LOGGER.trace("Message sent (future={}, message={})", f, m);
-				try {
-					f.get();
-					cf.complete(null);
-				} catch (ExecutionException e) {
-					cf.completeExceptionally(e.getCause());
-				}
-			});
+			channel.write(m)
+					.addListener(
+							f -> {
+								LOGGER.trace(
+										"Message sent (future={}, message={})",
+										f, m);
+								try {
+									f.get();
+									if (f.isSuccess()) {
+										cf.complete(null);
+									} else {
+										cf.completeExceptionally(new RuntimeException(
+												"Future didn't complete successfully"));
+									}
+								} catch (ExecutionException e) {
+									cf.completeExceptionally(e.getCause());
+								}
+							});
 			cfs.add(cf);
 		}
 		return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs
@@ -98,8 +108,14 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	public void close() throws IOException {
 		flushTimer.stop();
 		channel.flush();
-		if (defaultEventLoopGroup) {
-			eventLoopGroup.shutdownGracefully();
+		try {
+			channel.close().sync();
+		} catch (InterruptedException e) {
+			LOGGER.warn("Error while closing channel", e);
+		} finally {
+			if (defaultEventLoopGroup) {
+				eventLoopGroup.shutdownGracefully();
+			}
 		}
 	}
 
