@@ -5,9 +5,11 @@ import static org.hamcrest.Matchers.everyItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.flozano.statsd.metrics.Count;
 import com.flozano.statsd.metrics.Gauge;
 import com.flozano.statsd.metrics.Metric;
+import com.flozano.statsd.mock.NettyUDPServer;
 import com.flozano.statsd.mock.ThreadedUDPServer;
 import com.flozano.statsd.mock.UDPServer;
 
@@ -32,16 +35,28 @@ public class IntegrationTest {
 
 	static final int PORT = 8125;
 
-	@Parameters
+	@Parameters(name = "{index}: {0} items with server {1}")
 	public static Collection<Object[]> params() {
-		return Arrays.asList(new Object[] { 1 }, new Object[] { 10 },
-				new Object[] { 100 }, new Object[] { 1000 });
+		List<Object[]> params = new LinkedList<>();
+		for (int i : Arrays.asList(1, 10, 100, 1000, 10000)) {
+			for (Class<? extends UDPServer> serverClass : Arrays
+					.<Class<? extends UDPServer>> asList(
+							ThreadedUDPServer.class, NettyUDPServer.Nio.class,
+							NettyUDPServer.Oio.class)) {
+				params.add(new Object[] { i, serverClass });
+			}
+		}
+		return params;
 	}
 
 	private final int numberOfItems;
 
-	public IntegrationTest(int numberOfItems) {
+	private final Class<? extends UDPServer> serverClass;
+
+	public IntegrationTest(int numberOfItems,
+			Class<? extends UDPServer> serverClass) {
 		this.numberOfItems = numberOfItems;
+		this.serverClass = serverClass;
 	}
 
 	@Test
@@ -53,12 +68,12 @@ public class IntegrationTest {
 				for (int i = 0; i < numberOfItems; i++) {
 					css.add(c.send(new Count("example", 1)));
 				}
-				
+
 				CompletableFuture.allOf(
 						css.toArray(new CompletableFuture[numberOfItems])).get(
-						2, TimeUnit.MINUTES);
+						10, TimeUnit.SECONDS);
 				LOGGER.info("All items sent: {}", numberOfItems);
-				
+
 				server.waitForAllItemsReceived();
 				LOGGER.info("All items received: {}", numberOfItems);
 
@@ -78,7 +93,7 @@ public class IntegrationTest {
 					items[i] = new Gauge("example", 2);
 				}
 
-				c.send(items).get(2, TimeUnit.MINUTES);
+				c.send(items).get(10, TimeUnit.SECONDS);
 				LOGGER.info("All items sent: {}", numberOfItems);
 
 				server.waitForAllItemsReceived();
@@ -96,7 +111,13 @@ public class IntegrationTest {
 	}
 
 	private UDPServer newServer(int numberOfItems) {
-		// return new DummyUDPServer(PORT, numberOfItems);
-		return new ThreadedUDPServer(PORT, numberOfItems);
+		try {
+			return serverClass.getConstructor(int.class, int.class)
+					.newInstance(PORT, numberOfItems);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

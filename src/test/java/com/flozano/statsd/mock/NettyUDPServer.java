@@ -7,7 +7,9 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.channel.socket.oio.OioDatagramChannel;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,10 +23,10 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DummyUDPServer implements AutoCloseable, UDPServer {
+public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(DummyUDPServer.class);
+			.getLogger(NettyUDPServer.class);
 
 	private final Bootstrap bootstrap;
 	private final Channel channel;
@@ -34,12 +36,17 @@ public class DummyUDPServer implements AutoCloseable, UDPServer {
 	private final CountDownLatch latch;
 	private Timer timer;
 
-	public DummyUDPServer(int port, int numberOfItems) {
+	protected abstract EventLoopGroup getEventLoopGroup();
+
+	protected abstract Class<? extends Channel> getChannelClass();
+
+	public NettyUDPServer(int port, int numberOfItems) {
 		latch = new CountDownLatch(numberOfItems);
-		eventLoopGroup = new NioEventLoopGroup(1);
+		eventLoopGroup = getEventLoopGroup();
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
-		bootstrap.channel(NioDatagramChannel.class);
+		// bootstrap.channel(NioDatagramChannel.class);
+		bootstrap.channel(getChannelClass());
 		bootstrap.option(ChannelOption.SO_RCVBUF, 1024 * 1024 * 5);
 		bootstrap.option(ChannelOption.ALLOCATOR, new PooledByteBufAllocator());
 		bootstrap.handler(new ChannelInitializer<Channel>() {
@@ -87,6 +94,42 @@ public class DummyUDPServer implements AutoCloseable, UDPServer {
 
 	@Override
 	public void waitForAllItemsReceived() throws InterruptedException {
-		latch.await(2, TimeUnit.MINUTES);
+		latch.await(10, TimeUnit.SECONDS);
+	}
+
+	public static class Oio extends NettyUDPServer {
+
+		public Oio(int port, int numberOfItems) {
+			super(port, numberOfItems);
+		}
+
+		@Override
+		protected EventLoopGroup getEventLoopGroup() {
+			return new OioEventLoopGroup();
+		}
+
+		@Override
+		protected Class<? extends Channel> getChannelClass() {
+			return OioDatagramChannel.class;
+		}
+
+	}
+
+	public static class Nio extends NettyUDPServer {
+
+		public Nio(int port, int numberOfItems) {
+			super(port, numberOfItems);
+		}
+
+		@Override
+		protected EventLoopGroup getEventLoopGroup() {
+			return new NioEventLoopGroup();
+		}
+
+		@Override
+		protected Class<? extends Channel> getChannelClass() {
+			return NioDatagramChannel.class;
+		}
+
 	}
 }
