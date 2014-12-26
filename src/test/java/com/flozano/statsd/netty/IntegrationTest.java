@@ -39,7 +39,7 @@ public class IntegrationTest {
 	@Parameters(name = "{index}: {0} items with server {1}")
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
-		for (int i : Arrays.asList(1, 10, 100, 200, 500, 1000)) {
+		for (int i : Arrays.asList(1, 10, 100, 200, 500)) {
 			for (Class<? extends UDPServer> serverClass : Arrays
 					.<Class<? extends UDPServer>> asList(
 							ThreadedUDPServer.class, NettyUDPServer.Nio.class,
