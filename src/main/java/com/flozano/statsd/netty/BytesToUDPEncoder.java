@@ -37,10 +37,10 @@ public class BytesToUDPEncoder extends MessageToMessageEncoder<ByteBuf> {
 	@Override
 	protected void encode(ChannelHandlerContext ctx, ByteBuf msg,
 			List<Object> out) throws Exception {
-		LOGGER.warn("Writing {} ", msg);
+		LOGGER.trace("Writing {} ", msg);
 		msg.retain(); // Retain because reuse of same byteBuf?
 		out.add(new DatagramPacket(msg, targetAddress));
-		LOGGER.warn("Wrote {} ", msg);
+		LOGGER.trace("Wrote {} ", msg);
 	}
 
 }
