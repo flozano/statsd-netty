@@ -24,10 +24,10 @@ public class MetricToBytesEncoder extends MessageToByteEncoder<Metric> {
 	@Override
 	protected void encode(ChannelHandlerContext ctx, Metric msg, ByteBuf out)
 			throws Exception {
-		LOGGER.warn("Writing {} ", msg);
+		LOGGER.trace("Writing {} ", msg);
 		msg.toStringParts((part) -> out.writeBytes(part
 				.getBytes(StandardCharsets.UTF_8)));
-		LOGGER.warn("Wrote {} ", msg);
+		LOGGER.trace("Wrote {} ", msg);
 	}
 
 }
