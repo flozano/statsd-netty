@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -73,8 +74,9 @@ public class IntegrationTest {
 						css.toArray(new CompletableFuture[numberOfItems])).get(
 						10, TimeUnit.SECONDS);
 				LOGGER.info("All items sent: {}", numberOfItems);
-
-				server.waitForAllItemsReceived();
+				
+				assertTrue("All items were not received",
+						server.waitForAllItemsReceived());
 				LOGGER.info("All items received: {}", numberOfItems);
 
 				assertThat(server.getItemsSnapshot(),

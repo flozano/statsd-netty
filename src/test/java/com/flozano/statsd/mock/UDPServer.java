@@ -8,6 +8,6 @@ public interface UDPServer extends AutoCloseable {
 
 	void clear();
 
-	void waitForAllItemsReceived() throws InterruptedException;
+	boolean waitForAllItemsReceived() throws InterruptedException;
 
 }
