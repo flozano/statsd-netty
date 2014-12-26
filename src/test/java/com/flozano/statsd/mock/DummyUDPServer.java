@@ -63,8 +63,8 @@ public class DummyUDPServer implements AutoCloseable {
 		}
 		eventLoopGroup.shutdownGracefully();
 	}
-	
-	public void waitForItemsReceived() throws InterruptedException {
+
+	public void waitForAllItemsReceived() throws InterruptedException {
 		latch.await();
 	}
 }

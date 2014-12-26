@@ -74,6 +74,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 
 	@Override
 	public CompletableFuture<Void> send(Metric... metrics) {
+		validateMetrics(metrics);
 		ArrayList<CompletableFuture<Void>> cfs = new ArrayList<CompletableFuture<Void>>(
 				metrics.length);
 		for (Metric m : metrics) {
@@ -99,6 +100,14 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 		channel.flush();
 		if (defaultEventLoopGroup) {
 			eventLoopGroup.shutdownGracefully();
+		}
+	}
+
+	private static void validateMetrics(Metric[] metrics) {
+		requireNonNull(metrics);
+		if (metrics.length < 1) {
+			throw new IllegalArgumentException(
+					"At least one metric must be provided");
 		}
 	}
 }

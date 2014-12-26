@@ -51,7 +51,7 @@ public class IntegrationTest {
 				CompletableFuture.allOf(
 						css.toArray(new CompletableFuture[numberOfItems]))
 						.get();
-				server.waitForItemsReceived();
+				server.waitForAllItemsReceived();
 				assertThat(server.getItemsSnapshot(),
 						everyItem(equalTo("example:1|c")));
 				assertEquals(numberOfItems, server.getItemsSnapshot().size());
@@ -68,7 +68,7 @@ public class IntegrationTest {
 					items[i] = new Gauge("example", 2);
 				}
 				c.send(items).get();
-				server.waitForItemsReceived();
+				server.waitForAllItemsReceived();
 				assertThat(server.getItemsSnapshot(),
 						everyItem(equalTo("example:2|g")));
 				assertEquals(numberOfItems, server.getItemsSnapshot().size());
