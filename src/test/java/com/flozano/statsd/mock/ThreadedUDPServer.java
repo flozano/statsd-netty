@@ -94,6 +94,6 @@ public class ThreadedUDPServer extends Thread implements UDPServer {
 
 	@Override
 	public void waitForAllItemsReceived() throws InterruptedException {
-		latch.await(2, TimeUnit.MINUTES);
+		latch.await(10, TimeUnit.SECONDS);
 	}
 }
