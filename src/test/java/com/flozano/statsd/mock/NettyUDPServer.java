@@ -93,8 +93,12 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 	}
 
 	@Override
-	public boolean waitForAllItemsReceived() throws InterruptedException {
-		return latch.await(10, TimeUnit.SECONDS);
+	public boolean waitForAllItemsReceived() {
+		try {
+			return latch.await(10, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			return false;
+		}
 	}
 
 	public static class Oio extends NettyUDPServer {

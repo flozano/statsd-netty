@@ -93,7 +93,11 @@ public class ThreadedUDPServer extends Thread implements UDPServer {
 	}
 
 	@Override
-	public boolean waitForAllItemsReceived() throws InterruptedException {
-		return latch.await(10, TimeUnit.SECONDS);
+	public boolean waitForAllItemsReceived() {
+		try {
+			return latch.await(10, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			return false;
+		}
 	}
 }

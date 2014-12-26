@@ -39,7 +39,7 @@ public class IntegrationTest {
 	@Parameters(name = "{index}: {0} items with server {1}")
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
-		for (int i : Arrays.asList(1, 10, 100, 1000, 10000)) {
+		for (int i : Arrays.asList(1, 10, 100, 200, 500, 1000)) {
 			for (Class<? extends UDPServer> serverClass : Arrays
 					.<Class<? extends UDPServer>> asList(
 							ThreadedUDPServer.class, NettyUDPServer.Nio.class,
@@ -74,14 +74,8 @@ public class IntegrationTest {
 						css.toArray(new CompletableFuture[numberOfItems])).get(
 						10, TimeUnit.SECONDS);
 				LOGGER.info("All items sent: {}", numberOfItems);
-				
-				assertTrue("All items were not received",
-						server.waitForAllItemsReceived());
-				LOGGER.info("All items received: {}", numberOfItems);
 
-				assertThat(server.getItemsSnapshot(),
-						everyItem(equalTo("example:1|c")));
-				assertEquals(numberOfItems, server.getItemsSnapshot().size());
+				assertServer(server, "example:1|c");
 			}
 		}
 	}
@@ -98,14 +92,18 @@ public class IntegrationTest {
 				c.send(items).get(10, TimeUnit.SECONDS);
 				LOGGER.info("All items sent: {}", numberOfItems);
 
-				server.waitForAllItemsReceived();
-				LOGGER.info("All items received: {}", numberOfItems);
-
-				assertThat(server.getItemsSnapshot(),
-						everyItem(equalTo("example:2|g")));
-				assertEquals(numberOfItems, server.getItemsSnapshot().size());
+				assertServer(server, "example:2|g");
 			}
 		}
+	}
+
+	private void assertServer(UDPServer server, String expectedValue) {
+		assertTrue("All items were not received",
+				server.waitForAllItemsReceived());
+		LOGGER.info("All items received: {}", numberOfItems);
+
+		assertThat(server.getItemsSnapshot(), everyItem(equalTo(expectedValue)));
+		assertEquals(numberOfItems, server.getItemsSnapshot().size());
 	}
 
 	private NettyStatsDClientImpl newClient() {

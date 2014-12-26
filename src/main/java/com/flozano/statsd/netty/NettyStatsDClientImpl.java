@@ -9,15 +9,14 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +59,15 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 			throw new RuntimeException(e);
 		}
 
-		flushTimer = new HashedWheelTimer();
-		flushTimer.newTimeout(timeout -> channel.flush(), 1, TimeUnit.SECONDS);
+		flushTimer = new Timer("flush-timer");
+		flushTimer.scheduleAtFixedRate(new TimerTask() {
+
+			@Override
+			public void run() {
+				channel.flush();
+				LOGGER.trace("Flushed channel");
+			}
+		}, 1000, 1000);
 	}
 
 	public NettyStatsDClientImpl(String host, int port,
@@ -106,7 +112,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 
 	@Override
 	public void close() throws IOException {
-		flushTimer.stop();
+		flushTimer.cancel();
 		channel.flush();
 		try {
 			channel.close().sync();
