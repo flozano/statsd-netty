@@ -63,7 +63,7 @@ public class ThreadedUDPServer extends Thread implements UDPServer {
 						.trim());
 				latch.countDown();
 			} catch (SocketTimeoutException e) {
-				// timeout
+				LOGGER.debug("Socket timeout when receiving");
 			} catch (IOException e) {
 				if (stopped.get()) {
 
