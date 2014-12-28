@@ -40,14 +40,14 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 
 	protected abstract Class<? extends Channel> getChannelClass();
 
-	public NettyUDPServer(int port, int numberOfItems) {
+	public NettyUDPServer(int port, int numberOfItems, int recvbufValue) {
 		latch = new CountDownLatch(numberOfItems);
 		eventLoopGroup = getEventLoopGroup();
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
 		// bootstrap.channel(NioDatagramChannel.class);
 		bootstrap.channel(getChannelClass());
-		bootstrap.option(ChannelOption.SO_RCVBUF, 1024 * 1024 * 5);
+		bootstrap.option(ChannelOption.SO_RCVBUF, recvbufValue);
 		bootstrap.option(ChannelOption.ALLOCATOR, new PooledByteBufAllocator());
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 
@@ -103,8 +103,8 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 
 	public static class Oio extends NettyUDPServer {
 
-		public Oio(int port, int numberOfItems) {
-			super(port, numberOfItems);
+		public Oio(int port, int numberOfItems, int recvbufValue) {
+			super(port, numberOfItems, recvbufValue);
 		}
 
 		@Override
@@ -121,8 +121,8 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 
 	public static class Nio extends NettyUDPServer {
 
-		public Nio(int port, int numberOfItems) {
-			super(port, numberOfItems);
+		public Nio(int port, int numberOfItems, int recvbufValue) {
+			super(port, numberOfItems, recvbufValue);
 		}
 
 		@Override

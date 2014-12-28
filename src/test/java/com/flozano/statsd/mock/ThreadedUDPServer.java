@@ -30,14 +30,14 @@ public class ThreadedUDPServer extends Thread implements UDPServer {
 	private final CountDownLatch latch;
 	private final Timer timer;
 
-	public ThreadedUDPServer(int port, int numberOfItems) {
+	public ThreadedUDPServer(int port, int numberOfItems, int recvbufValue) {
 		super("threaded-udp-server");
 		latch = new CountDownLatch(numberOfItems);
 
 		try {
 			socket = new DatagramSocket(port);
-			socket.setSoTimeout(5000);
-			socket.setReceiveBufferSize(10 * 1024 * 1204);
+			socket.setSoTimeout(10000);
+			socket.setReceiveBufferSize(recvbufValue);
 		} catch (SocketException e) {
 			throw new RuntimeException(e);
 		}

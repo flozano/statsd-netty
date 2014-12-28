@@ -59,4 +59,16 @@ public abstract class Metric {
 			parts.accept(Double.toString(sampleRate));
 		}
 	}
+
+	public static String name(String name, String... moreNames) {
+		final StringBuilder sb = new StringBuilder(requireNonNull(name));
+		if (moreNames != null && moreNames.length > 0) {
+			for (String additional : moreNames) {
+				if (additional != null) {
+					sb.append('.').append(additional);
+				}
+			}
+		}
+		return sb.toString();
+	}
 }

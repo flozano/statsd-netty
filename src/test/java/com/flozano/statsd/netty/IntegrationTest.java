@@ -36,7 +36,7 @@ public class IntegrationTest {
 
 	static final int PORT = 8125;
 
-	@Parameters(name = "{index}: {0} items with server {1}")
+	@Parameters(name = "{index}: items={0}, rcvbuf={2}, server={1}")
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
 		for (int i : Arrays.asList(1, 10, 100, 200, 500)) {
@@ -44,7 +44,10 @@ public class IntegrationTest {
 					.<Class<? extends UDPServer>> asList(
 							ThreadedUDPServer.class, NettyUDPServer.Nio.class,
 							NettyUDPServer.Oio.class)) {
-				params.add(new Object[] { i, serverClass });
+				for (int recvbufValue : Arrays.asList(1000, 10 * 1000,
+						100 * 1000, 1000 * 1000, 10 * 1000 * 1000 /* huge */)) {
+					params.add(new Object[] { i, serverClass, recvbufValue });
+				}
 			}
 		}
 		return params;
@@ -54,10 +57,13 @@ public class IntegrationTest {
 
 	private final Class<? extends UDPServer> serverClass;
 
+	private final int recvbufValue;
+
 	public IntegrationTest(int numberOfItems,
-			Class<? extends UDPServer> serverClass) {
+			Class<? extends UDPServer> serverClass, int recvbufValue) {
 		this.numberOfItems = numberOfItems;
 		this.serverClass = serverClass;
+		this.recvbufValue = recvbufValue;
 	}
 
 	@Test
@@ -112,8 +118,8 @@ public class IntegrationTest {
 
 	private UDPServer newServer(int numberOfItems) {
 		try {
-			return serverClass.getConstructor(int.class, int.class)
-					.newInstance(PORT, numberOfItems);
+			return serverClass.getConstructor(int.class, int.class, int.class)
+					.newInstance(PORT, numberOfItems, recvbufValue);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {

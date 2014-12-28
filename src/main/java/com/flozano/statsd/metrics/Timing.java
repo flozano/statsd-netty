@@ -14,5 +14,4 @@ public class Timing extends Metric {
 	public String getSuffix() {
 		return "ms";
 	}
-
 }
