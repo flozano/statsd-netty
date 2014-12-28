@@ -39,11 +39,11 @@ public class IntegrationTest {
 	@Parameters(name = "{index}: items={0}, rcvbuf={2}, server={1}")
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
-		for (int i : Arrays.asList(1, 10, 100, 200, 500)) {
+		for (int i : Arrays.asList(1/* , 1 */, 100, 200/* , 500 */)) {
 			for (Class<? extends UDPServer> serverClass : Arrays
 					.<Class<? extends UDPServer>> asList(
-							ThreadedUDPServer.class, NettyUDPServer.Nio.class,
-							NettyUDPServer.Oio.class)) {
+							ThreadedUDPServer.class, NettyUDPServer.Nio.class
+					/* ,NettyUDPServer.Oio.class */)) {
 				for (int recvbufValue : Arrays.asList(1000, 10 * 1000,
 						100 * 1000, 1000 * 1000, 10 * 1000 * 1000 /* huge */)) {
 					params.add(new Object[] { i, serverClass, recvbufValue });
