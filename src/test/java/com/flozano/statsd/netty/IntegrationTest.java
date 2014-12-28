@@ -28,13 +28,15 @@ import com.flozano.statsd.metrics.Metric;
 import com.flozano.statsd.mock.NettyUDPServer;
 import com.flozano.statsd.mock.ThreadedUDPServer;
 import com.flozano.statsd.mock.UDPServer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(Parameterized.class)
 public class IntegrationTest {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
 
-	static final int PORT = 8125;
+        static final AtomicInteger PORTS = new AtomicInteger(8125);
+	static int PORT = 8125;
 
 	@Parameters(name = "{index}: {0} items with server {1}")
 	public static Collection<Object[]> params() {
@@ -111,6 +113,7 @@ public class IntegrationTest {
 	}
 
 	private UDPServer newServer(int numberOfItems) {
+                PORT = PORTS.getAndIncrement();
 		try {
 			return serverClass.getConstructor(int.class, int.class)
 					.newInstance(PORT, numberOfItems);
