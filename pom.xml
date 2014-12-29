@@ -4,6 +4,34 @@
 	<groupId>com.flozano.statsd-netty</groupId>
 	<artifactId>statsd-netty</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
+	<name>statsd-netty</name>
+	<description>A netty-based StatsD UDP client</description>
+	<url>https://github.com/flozano/statsd-netty</url>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>https://github.com/flozano/statsd-netty/</url>
+		<connection>scm:git:git@github.com:flozano/statsd-netty.git</connection>
+		<developerConnection>scm:git:git@github.com:flozano/statsd-netty.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+	<ciManagement>
+		<system>travis-ci</system>
+		<url>https://travis-ci.org/flozano/statsd-netty</url>
+	</ciManagement>
+
+	<developers>
+		<developer>
+			<name>Francisco A. Lozano</name>
+			<email>flozano@gmail.com</email>
+		</developer>
+	</developers>
+	
 	<properties>
 		<!-- Project encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,23 +53,6 @@
 		<netty.version>4.0.24.Final</netty.version>
 		<slf4j.version>1.7.9</slf4j.version>
 	</properties>
-	<scm>
-		<url>https://github.com/flozano/statsd-netty/</url>
-		<connection>scm:git:git@github.com:flozano/statsd-netty.git</connection>
-		<developerConnection>scm:git:git@github.com:flozano/statsd-netty.git</developerConnection>
-		<tag>HEAD</tag>
-	</scm>
-	<ciManagement>
-		<system>travis-ci</system>
-		<url>https://travis-ci.org/flozano/statsd-netty</url>
-	</ciManagement>
-
-	<developers>
-		<developer>
-			<name>Francisco A. Lozano</name>
-			<email>flozano@gmail.com</email>
-		</developer>
-	</developers>
 
 	<dependencies>
 		<dependency>
