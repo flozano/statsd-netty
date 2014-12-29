@@ -44,7 +44,7 @@ public class IntegrationTest {
 					.<Class<? extends UDPServer>> asList(
 							ThreadedUDPServer.class, NettyUDPServer.Nio.class
 					/* ,NettyUDPServer.Oio.class */)) {
-				for (int recvbufValue : Arrays.asList(50_000, 250_000,
+				for (int recvbufValue : Arrays.asList(100_000, 500_000,
 						1_000_000)) {
 					for (int flushProbability : Arrays.asList(20, 80)) {
 						params.add(new Object[] { numberOfItems, serverClass,
