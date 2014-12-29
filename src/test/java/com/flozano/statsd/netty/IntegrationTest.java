@@ -39,7 +39,7 @@ public class IntegrationTest {
 	@Parameters(name = "{index}: items={0}, rcvbuf={2}, flushProbability={3}, server={1}")
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
-		for (int i : Arrays.asList(10, 100, 500)) {
+		for (int numberOfItems : Arrays.asList(10, 100, 500)) {
 			for (Class<? extends UDPServer> serverClass : Arrays
 					.<Class<? extends UDPServer>> asList(
 							ThreadedUDPServer.class, NettyUDPServer.Nio.class
@@ -47,8 +47,8 @@ public class IntegrationTest {
 				for (int recvbufValue : Arrays.asList(50_000, 250_000,
 						1_000_000)) {
 					for (int flushProbability : Arrays.asList(20, 80)) {
-						params.add(new Object[] { i, serverClass, recvbufValue,
-								flushProbability });
+						params.add(new Object[] { numberOfItems, serverClass,
+								recvbufValue, flushProbability });
 					}
 				}
 			}
