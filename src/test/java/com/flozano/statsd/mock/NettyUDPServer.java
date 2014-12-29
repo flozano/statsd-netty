@@ -117,13 +117,14 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 
 	@Override
 	public void close() throws Exception {
+		timer.cancel();
+
 		try {
 			channel.close().sync();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		eventLoopGroup.shutdownGracefully();
-		timer.cancel();
 	}
 
 	@Override
