@@ -81,6 +81,16 @@ public class MetricArrayToBytesEncoderTest {
 		verify(ctx, times(1)).alloc();
 		verifyNoMoreInteractions(ctx, allocator);
 	}
+	
+	@Test
+	public void testSingleBigElement() throws Exception {
+		Metric[] elements = new Metric[] { element(50) };
+		encoder.encode(ctx, elements, out);
+		assertThat(out, containsBufferFor(elements));
+		verify(allocator, times(1)).buffer();
+		verify(ctx, times(1)).alloc();
+		verifyNoMoreInteractions(ctx, allocator);
+	}
 
 	@Test
 	public void testFewElements_fitInOnePackage() throws Exception {
