@@ -56,7 +56,7 @@ public abstract class Metric {
 		parts.accept(getSuffix());
 		if (sampleRate != null) {
 			parts.accept("|@");
-			parts.accept(Double.toString(sampleRate));
+			parts.accept(String.format("%1.2f", sampleRate));
 		}
 	}
 
