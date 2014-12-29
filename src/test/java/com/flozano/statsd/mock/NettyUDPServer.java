@@ -83,7 +83,7 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 			public void run() {
 				String result;
 				do {
-					LOGGER.info("Polling...");
+					LOGGER.trace("Polling...");
 					result = queue.poll();
 					if (result != null) {
 						SPLITTER.splitAsStream(result).forEach((x) -> {
