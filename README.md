@@ -1,6 +1,6 @@
 statsd-netty
 ============
- ![Build status](https://travis-ci.org/flozano/statsd-netty.svg?branch=master)
+[![Build Status](https://secure.travis-ci.org/flozano/statsd-netty.svg?branch=master)](https://travis-ci.org/flozano/statsd-netty)
 
 
 
