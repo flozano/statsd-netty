@@ -9,10 +9,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.flozano.statsd.metrics.Metric;
 
 public class MetricArrayToBytesEncoder extends
 		MessageToMessageEncoder<Metric[]> {
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(MetricArrayToBytesEncoder.class);
 
 	public static final int MAX_MTU = 800;
 
@@ -73,6 +79,7 @@ public class MetricArrayToBytesEncoder extends
 		if (buf != null) {
 			out.add(buf);
 		}
+		LOGGER.trace("Wrote {} packets", out.size());
 	}
 
 	private static class ByteCountingWriter implements Consumer<String> {
