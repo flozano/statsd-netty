@@ -15,7 +15,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -26,7 +30,6 @@ import com.flozano.statsd.metrics.Count;
 import com.flozano.statsd.metrics.Gauge;
 import com.flozano.statsd.metrics.Metric;
 import com.flozano.statsd.mock.NettyUDPServer;
-import com.flozano.statsd.mock.ThreadedUDPServer;
 import com.flozano.statsd.mock.UDPServer;
 
 @RunWith(Parameterized.class)
@@ -42,7 +45,7 @@ public class IntegrationTest {
 		for (int numberOfItems : Arrays.asList(10, 100, 500)) {
 			for (Class<? extends UDPServer> serverClass : Arrays
 					.<Class<? extends UDPServer>> asList(
-							ThreadedUDPServer.class, NettyUDPServer.Nio.class
+					/* ThreadedUDPServer.class, */NettyUDPServer.Nio.class
 					/* ,NettyUDPServer.Oio.class */)) {
 				for (int recvbufValue : Arrays.asList(100_000, 500_000,
 						1_000_000)) {
@@ -55,6 +58,9 @@ public class IntegrationTest {
 		}
 		return params;
 	}
+
+	@Rule
+	public TestName name = new TestName();
 
 	private final int numberOfItems;
 
@@ -71,6 +77,17 @@ public class IntegrationTest {
 		this.serverClass = serverClass;
 		this.recvbufValue = recvbufValue;
 		this.flushProbability = flushProbability;
+	}
+
+	@Before
+	public void setUp() {
+		LOGGER.info("Starting test {}", name.getMethodName());
+	}
+
+	@After
+	public void tearDown() {
+		LOGGER.info("Finished test {}", name.getMethodName());
+
 	}
 
 	@Test

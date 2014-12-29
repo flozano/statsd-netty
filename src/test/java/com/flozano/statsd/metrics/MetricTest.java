@@ -55,7 +55,6 @@ public class MetricTest {
 		Metric metric = newMetric();
 		assertThat(metric.toString(),
 				is(equalTo(expectedValue(metric.getSuffix()))));
-
 	}
 
 	@Test
