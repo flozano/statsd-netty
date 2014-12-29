@@ -13,12 +13,16 @@ import io.netty.channel.socket.oio.OioDatagramChannel;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +32,16 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(NettyUDPServer.class);
 
+	private static final Pattern SPLITTER = Pattern.compile("\n",
+			Pattern.LITERAL);
+
 	private final Bootstrap bootstrap;
 	private final Channel channel;
 
 	private final EventLoopGroup eventLoopGroup;
-	private final Collection<String> items = new CopyOnWriteArrayList<>();
+	private final Queue<String> queue = new ConcurrentLinkedQueue<>();
+	private final Collection<String> items = Collections
+			.synchronizedList(new LinkedList<>());
 	private final CountDownLatch latch;
 	private Timer timer;
 
@@ -53,17 +62,42 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast("udp", new UDPToStringDecoder())
-						.addLast("store", new ServerHandler(items, latch));
+				ch.pipeline().addLast("store", new ServerHandler(queue));
 			}
 		});
+
 		try {
 			this.channel = bootstrap.bind(port).sync().channel();
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
 		timer = new Timer();
-		timer.schedule(new TimerTask() {
+		configureStatusTimer();
+		configurePollingTimer();
+	}
+
+	private void configurePollingTimer() {
+		timer.scheduleAtFixedRate(new TimerTask() {
+
+			@Override
+			public void run() {
+				String result;
+				do {
+					LOGGER.info("Polling...");
+					result = queue.poll();
+					if (result != null) {
+						SPLITTER.splitAsStream(result).forEach((x) -> {
+							items.add(x);
+							latch.countDown();
+						});
+					}
+				} while (result != null);
+			}
+		}, 250, 500);
+	}
+
+	private void configureStatusTimer() {
+		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				LOGGER.info("Pending to receive: {}", latch.getCount());

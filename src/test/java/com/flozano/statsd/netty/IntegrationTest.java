@@ -36,17 +36,20 @@ public class IntegrationTest {
 
 	static final int PORT = 8125;
 
-	@Parameters(name = "{index}: items={0}, rcvbuf={2}, server={1}")
+	@Parameters(name = "{index}: items={0}, rcvbuf={2}, flushProbability={3}, server={1}")
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
-		for (int i : Arrays.asList(1/* , 1 */, 100, 200/* , 500 */)) {
+		for (int i : Arrays.asList(10, 100, 500)) {
 			for (Class<? extends UDPServer> serverClass : Arrays
 					.<Class<? extends UDPServer>> asList(
 							ThreadedUDPServer.class, NettyUDPServer.Nio.class
 					/* ,NettyUDPServer.Oio.class */)) {
-				for (int recvbufValue : Arrays.asList(1000, 10 * 1000,
-						100 * 1000, 1000 * 1000, 10 * 1000 * 1000 /* huge */)) {
-					params.add(new Object[] { i, serverClass, recvbufValue });
+				for (int recvbufValue : Arrays.asList(50_000, 250_000,
+						1_000_000)) {
+					for (int flushProbability : Arrays.asList(20, 80)) {
+						params.add(new Object[] { i, serverClass, recvbufValue,
+								flushProbability });
+					}
 				}
 			}
 		}
@@ -59,11 +62,15 @@ public class IntegrationTest {
 
 	private final int recvbufValue;
 
+	private final int flushProbability;
+
 	public IntegrationTest(int numberOfItems,
-			Class<? extends UDPServer> serverClass, int recvbufValue) {
+			Class<? extends UDPServer> serverClass, int recvbufValue,
+			int flushProbability) {
 		this.numberOfItems = numberOfItems;
 		this.serverClass = serverClass;
 		this.recvbufValue = recvbufValue;
+		this.flushProbability = flushProbability;
 	}
 
 	@Test
@@ -113,7 +120,7 @@ public class IntegrationTest {
 	}
 
 	private NettyStatsDClientImpl newClient() {
-		return new NettyStatsDClientImpl("127.0.0.1", PORT);
+		return new NettyStatsDClientImpl("127.0.0.1", PORT, flushProbability);
 	}
 
 	private UDPServer newServer(int numberOfItems) {

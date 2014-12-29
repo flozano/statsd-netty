@@ -2,34 +2,36 @@ package com.flozano.statsd.mock;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.DatagramPacket;
 
-import java.util.Collection;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
+import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServerHandler extends SimpleChannelInboundHandler<String> {
+public class ServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(ServerHandler.class);
 
-	private final Collection<String> received;
+	private final Queue<String> received;
 
-	private CountDownLatch latch;
-
-	public ServerHandler(Collection<String> received, CountDownLatch latch) {
+	public ServerHandler(Queue<String> received) {
 		this.received = Objects.requireNonNull(received);
-		this.latch = Objects.requireNonNull(latch);
 	}
 
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, String msg)
+	public boolean acceptInboundMessage(Object msg) throws Exception {
+		return msg != null && msg instanceof DatagramPacket;
+	}
+
+	@Override
+	protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg)
 			throws Exception {
 		LOGGER.trace("Received message: {}", msg);
-		received.add(msg);
-		latch.countDown();
+		received.add(msg.content().toString(StandardCharsets.UTF_8));
 	}
 
 }

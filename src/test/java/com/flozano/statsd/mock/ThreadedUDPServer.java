@@ -7,13 +7,15 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +24,11 @@ public class ThreadedUDPServer extends Thread implements UDPServer {
 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(ThreadedUDPServer.class);
+	private static final Pattern SPLITTER = Pattern.compile("\n",
+			Pattern.LITERAL);
 
-	private final List<String> items = new CopyOnWriteArrayList<>();
+	private final List<String> items = Collections
+			.synchronizedList(new LinkedList<>());
 	private final DatagramSocket socket;
 
 	private final AtomicBoolean stopped = new AtomicBoolean(false);
@@ -59,9 +64,12 @@ public class ThreadedUDPServer extends Thread implements UDPServer {
 			DatagramPacket packet = new DatagramPacket(buf, buf.length);
 			try {
 				socket.receive(packet);
-				items.add(new String(packet.getData(), StandardCharsets.UTF_8)
-						.trim());
-				latch.countDown();
+				String item = new String(packet.getData(),
+						StandardCharsets.UTF_8).trim();
+				for (String part : SPLITTER.split(item)) {
+					items.add(part);
+					latch.countDown();
+				}
 			} catch (SocketTimeoutException e) {
 				LOGGER.debug("Socket timeout when receiving");
 			} catch (IOException e) {

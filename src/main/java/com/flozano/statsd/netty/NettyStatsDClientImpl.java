@@ -12,7 +12,6 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -37,19 +36,27 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	private final EventLoopGroup eventLoopGroup;
 
 	private NettyStatsDClientImpl(String host, int port,
-			EventLoopGroup eventLoopGroup, boolean defaultEventLoopGroup) {
+			EventLoopGroup eventLoopGroup, boolean defaultEventLoopGroup,
+			int flushProbability) {
 		this.eventLoopGroup = requireNonNull(eventLoopGroup);
 		this.defaultEventLoopGroup = defaultEventLoopGroup;
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
 		bootstrap.channel(NioDatagramChannel.class);
-		bootstrap.option(ChannelOption.SO_SNDBUF, 5 * 1024 * 1024);
+		bootstrap.option(ChannelOption.SO_SNDBUF, 1_000_000);
+		bootstrap.option(ChannelOption.SO_RCVBUF, 1_000_000);
 		bootstrap.option(ChannelOption.ALLOCATOR, new PooledByteBufAllocator());
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline().addLast("udp", new BytesToUDPEncoder(host, port))
+				ch.pipeline()
+						.addLast(
+								"udp",
+								new BytesToUDPEncoder(host, port,
+										flushProbability))
+						.addLast("array-encoder",
+								new MetricArrayToBytesEncoder(500))
 						.addLast("encoder", new MetricToBytesEncoder());
 			}
 		});
@@ -71,43 +78,36 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	}
 
 	public NettyStatsDClientImpl(String host, int port,
-			EventLoopGroup eventLoopGroup) {
-		this(host, port, eventLoopGroup, false);
+			EventLoopGroup eventLoopGroup, int flushProbability) {
+		this(host, port, eventLoopGroup, false, flushProbability);
 	}
 
-	public NettyStatsDClientImpl(String host, int port) {
-		this(host, port, new NioEventLoopGroup(), true);
+	public NettyStatsDClientImpl(String host, int port, int flushProbability) {
+		this(host, port, new NioEventLoopGroup(), true, flushProbability);
 	}
 
 	@Override
 	public CompletableFuture<Void> send(Metric... metrics) {
 		validateMetrics(metrics);
-		ArrayList<CompletableFuture<Void>> cfs = new ArrayList<CompletableFuture<Void>>(
-				metrics.length);
-		for (Metric m : metrics) {
-			CompletableFuture<Void> cf = new CompletableFuture<>();
-			channel.write(m)
-					.addListener(
-							f -> {
-								LOGGER.trace(
-										"Message sent (future={}, message={})",
-										f, m);
-								try {
-									f.get();
-									if (f.isSuccess()) {
-										cf.complete(null);
-									} else {
-										cf.completeExceptionally(new RuntimeException(
-												"Future didn't complete successfully"));
-									}
-								} catch (ExecutionException e) {
-									cf.completeExceptionally(e.getCause());
-								}
-							});
-			cfs.add(cf);
-		}
-		return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs
-				.size()]));
+
+		CompletableFuture<Void> cf = new CompletableFuture<>();
+		channel.write(metrics).addListener(
+				f -> {
+					LOGGER.trace("Message sent (future={}, messages={})", f,
+							metrics);
+					try {
+						f.get();
+						if (f.isSuccess()) {
+							cf.complete(null);
+						} else {
+							cf.completeExceptionally(new RuntimeException(
+									"Future didn't complete successfully"));
+						}
+					} catch (ExecutionException e) {
+						cf.completeExceptionally(e.getCause());
+					}
+				});
+		return cf;
 	}
 
 	@Override
