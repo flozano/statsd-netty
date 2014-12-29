@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.flozano.statsd-netty</groupId>
 	<artifactId>statsd-netty</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<properties>
 		<!-- Project encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,7 +27,8 @@
 		<url>https://github.com/flozano/statsd-netty/</url>
 		<connection>scm:git:git@github.com:flozano/statsd-netty.git</connection>
 		<developerConnection>scm:git:git@github.com:flozano/statsd-netty.git</developerConnection>
-	</scm>
+	  <tag>v0.0.1</tag>
+  </scm>
 	<ciManagement>
 		<system>travis-ci</system>
 		<url>https://travis-ci.org/flozano/statsd-netty</url>
@@ -138,7 +138,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
