@@ -75,7 +75,7 @@ public class IntegrationTest {
 
 	@Test
 	public void testManyCalls() throws Exception {
-		try (UDPServer server = newServer(numberOfItems)) {
+		try (UDPServer server = newServer()) {
 			try (NettyStatsDClientImpl c = newClient()) {
 				List<CompletableFuture<Void>> css = new ArrayList<>(
 						numberOfItems);
@@ -95,7 +95,7 @@ public class IntegrationTest {
 
 	@Test
 	public void testSingleCall() throws Exception {
-		try (UDPServer server = newServer(numberOfItems)) {
+		try (UDPServer server = newServer()) {
 			try (NettyStatsDClientImpl c = newClient()) {
 				Metric[] items = new Metric[numberOfItems];
 				for (int i = 0; i < numberOfItems; i++) {
@@ -123,7 +123,7 @@ public class IntegrationTest {
 		return new NettyStatsDClientImpl("127.0.0.1", PORT, flushProbability);
 	}
 
-	private UDPServer newServer(int numberOfItems) {
+	private UDPServer newServer() {
 		try {
 			return serverClass.getConstructor(int.class, int.class, int.class)
 					.newInstance(PORT, numberOfItems, recvbufValue);
