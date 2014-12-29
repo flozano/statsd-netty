@@ -77,7 +77,7 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 	}
 
 	private void configurePollingTimer() {
-		timer.scheduleAtFixedRate(new TimerTask() {
+		timer.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
@@ -97,7 +97,7 @@ public abstract class NettyUDPServer implements AutoCloseable, UDPServer {
 	}
 
 	private void configureStatusTimer() {
-		timer.scheduleAtFixedRate(new TimerTask() {
+		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				LOGGER.info("Pending to receive: {}", latch.getCount());
