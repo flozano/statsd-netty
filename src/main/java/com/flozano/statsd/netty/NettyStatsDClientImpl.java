@@ -9,13 +9,13 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,6 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 
 	private final Bootstrap bootstrap;
 	private final Channel channel;
-	private final Timer flushTimer;
 
 	private final boolean defaultEventLoopGroup;
 	private final EventLoopGroup eventLoopGroup;
@@ -51,6 +50,10 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline()
+						.addLast("write-timeouts",
+								new WriteTimeoutHandler(2, TimeUnit.SECONDS))
+						.addLast("error-handler",
+								new WriteTimeoutFlushHandler())
 						.addLast(
 								"udp",
 								new BytesToUDPEncoder(host, port,
@@ -66,15 +69,6 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 			throw new RuntimeException(e);
 		}
 
-		flushTimer = new Timer("flush-timer");
-		flushTimer.scheduleAtFixedRate(new TimerTask() {
-
-			@Override
-			public void run() {
-				channel.flush();
-				LOGGER.trace("Flushed channel");
-			}
-		}, 1000, 1000);
 	}
 
 	public NettyStatsDClientImpl(String host, int port,
@@ -112,7 +106,6 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 
 	@Override
 	public void close() throws IOException {
-		flushTimer.cancel();
 		channel.flush();
 		try {
 			channel.close().sync();

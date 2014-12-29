@@ -46,7 +46,7 @@ public class IntegrationTest {
 					/* ,NettyUDPServer.Oio.class */)) {
 				for (int recvbufValue : Arrays.asList(100_000, 500_000,
 						1_000_000)) {
-					for (int flushProbability : Arrays.asList(20, 80)) {
+					for (int flushProbability : Arrays.asList(0, 20, 80)) {
 						params.add(new Object[] { numberOfItems, serverClass,
 								recvbufValue, flushProbability });
 					}
