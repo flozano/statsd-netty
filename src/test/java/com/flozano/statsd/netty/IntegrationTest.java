@@ -31,13 +31,15 @@ import com.flozano.statsd.metrics.Gauge;
 import com.flozano.statsd.metrics.Metric;
 import com.flozano.statsd.mock.NettyUDPServer;
 import com.flozano.statsd.mock.UDPServer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(Parameterized.class)
 public class IntegrationTest {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(IntegrationTest.class);
-
-	static final int PORT = 8125;
+	static final AtomicInteger PORTS = new AtomicInteger(8125);
+	
+	int port;
 
 	@Parameters(name = "{index}: items={0}, rcvbuf={2}, flushProbability={3}, server={1}")
 	public static Collection<Object[]> params() {
@@ -82,6 +84,7 @@ public class IntegrationTest {
 	@Before
 	public void setUp() {
 		LOGGER.info("Starting test {}", name.getMethodName());
+		port = PORTS.getAndIncrement();
 	}
 
 	@After
@@ -137,13 +140,13 @@ public class IntegrationTest {
 	}
 
 	private NettyStatsDClientImpl newClient() {
-		return new NettyStatsDClientImpl("127.0.0.1", PORT, flushProbability);
+		return new NettyStatsDClientImpl("127.0.0.1", port, flushProbability);
 	}
 
 	private UDPServer newServer() {
 		try {
 			return serverClass.getConstructor(int.class, int.class, int.class)
-					.newInstance(PORT, numberOfItems, recvbufValue);
+					.newInstance(port, numberOfItems, recvbufValue);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
