@@ -1,4 +1,4 @@
-package com.flozano.statsd.mock;
+package com.flozano.statsd.client.mock;
 
 import java.util.List;
 

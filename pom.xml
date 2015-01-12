@@ -50,7 +50,7 @@
 		<maven-source-plugin.version>2.4</maven-source-plugin.version>
 		<maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
 		<mockito.version>1.10.17</mockito.version>
-		<netty.version>4.0.24.Final</netty.version>
+		<netty.version>4.1.0.Beta3</netty.version>
 		<slf4j.version>1.7.9</slf4j.version>
 	</properties>
 

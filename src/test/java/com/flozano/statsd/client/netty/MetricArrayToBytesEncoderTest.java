@@ -1,4 +1,4 @@
-package com.flozano.statsd.netty;
+package com.flozano.statsd.client.netty;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
@@ -24,8 +24,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.flozano.statsd.metrics.Count;
-import com.flozano.statsd.metrics.Metric;
+import com.flozano.statsd.client.netty.MetricArrayToBytesEncoder;
+import com.flozano.statsd.metrics.values.CountValue;
+import com.flozano.statsd.metrics.values.MetricValue;
 
 public class MetricArrayToBytesEncoderTest {
 
@@ -50,7 +51,7 @@ public class MetricArrayToBytesEncoderTest {
 
 	@Test
 	public void testEmpty() throws Exception {
-		encoder.encode(ctx, new Metric[] {}, out);
+		encoder.encode(ctx, new MetricValue[] {}, out);
 		assertThat(out, IsEmptyCollection.empty());
 		verifyNoMoreInteractions(ctx);
 		verifyNoMoreInteractions(allocator);
@@ -66,7 +67,7 @@ public class MetricArrayToBytesEncoderTest {
 
 	@Test
 	public void testNullELement() throws Exception {
-		encoder.encode(ctx, new Metric[] { null }, out);
+		encoder.encode(ctx, new MetricValue[] { null }, out);
 		assertThat(out, IsEmptyCollection.empty());
 		verifyNoMoreInteractions(ctx);
 		verifyNoMoreInteractions(allocator);
@@ -74,7 +75,7 @@ public class MetricArrayToBytesEncoderTest {
 
 	@Test
 	public void testSingleElement() throws Exception {
-		Metric[] elements = new Metric[] { element(19) };
+		MetricValue[] elements = new MetricValue[] { element(19) };
 		encoder.encode(ctx, elements, out);
 		assertThat(out, containsBufferFor(elements));
 		verify(allocator, times(1)).buffer();
@@ -84,7 +85,7 @@ public class MetricArrayToBytesEncoderTest {
 	
 	@Test
 	public void testSingleBigElement() throws Exception {
-		Metric[] elements = new Metric[] { element(50) };
+		MetricValue[] elements = new MetricValue[] { element(50) };
 		encoder.encode(ctx, elements, out);
 		assertThat(out, containsBufferFor(elements));
 		verify(allocator, times(1)).buffer();
@@ -94,7 +95,7 @@ public class MetricArrayToBytesEncoderTest {
 
 	@Test
 	public void testFewElements_fitInOnePackage() throws Exception {
-		Metric[] elements = new Metric[] { element(5), element(5), element(5) };
+		MetricValue[] elements = new MetricValue[] { element(5), element(5), element(5) };
 		encoder.encode(ctx, elements, out);
 		assertThat(out, containsBufferFor(elements));
 		verify(allocator, times(1)).buffer();
@@ -104,10 +105,10 @@ public class MetricArrayToBytesEncoderTest {
 
 	@Test
 	public void testFewElements_cantFitInOnePackage() throws Exception {
-		Metric[] elements = new Metric[] { element(10), element(10),
+		MetricValue[] elements = new MetricValue[] { element(10), element(10),
 				element(10) };
-		Metric[] elements1 = new Metric[] { elements[0], elements[1] };
-		Metric[] elements2 = new Metric[] { elements[2] };
+		MetricValue[] elements1 = new MetricValue[] { elements[0], elements[1] };
+		MetricValue[] elements2 = new MetricValue[] { elements[2] };
 
 		encoder.encode(ctx, elements, out);
 		assertThat(out, containsBufferFor(elements1, elements2));
@@ -116,7 +117,7 @@ public class MetricArrayToBytesEncoderTest {
 		verifyNoMoreInteractions(ctx, allocator);
 	}
 
-	static Matcher<List<Object>> containsBufferFor(Metric[]... metricsArgs) {
+	static Matcher<List<Object>> containsBufferFor(MetricValue[]... metricsArgs) {
 		return new CustomMatcher<List<Object>>(
 				"Contains buffers for the specicied metrics") {
 
@@ -132,7 +133,7 @@ public class MetricArrayToBytesEncoderTest {
 					return false;
 				}
 
-				for (Metric[] metrics : metricsArgs) {
+				for (MetricValue[] metrics : metricsArgs) {
 					String payload = Arrays.asList(metrics).stream()
 							.map((x) -> x.toString())
 							.collect(Collectors.joining("\n"));
@@ -147,10 +148,10 @@ public class MetricArrayToBytesEncoderTest {
 
 	}
 
-	static Metric element(int nBytes) {
+	static MetricValue element(int nBytes) {
 		StringBuilder sb = new StringBuilder("a");
 		for (;;) {
-			Metric m = new Count(sb.toString(), 1, null);
+			MetricValue m = new CountValue(sb.toString(), 1, null);
 			int length = m.toString().getBytes(StandardCharsets.UTF_8).length;
 			if (length < nBytes) {
 				sb = sb.append('a');

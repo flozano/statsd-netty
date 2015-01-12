@@ -1,18 +1,25 @@
 package com.flozano.statsd.metrics;
 
-public class Gauge extends Metric {
+import com.flozano.statsd.client.StatsDClient;
 
-	public Gauge(String name, long value, Double sample) {
-		super(name, value, sample);
-	}
-	
-	public Gauge(String name, long value) {
-		this(name, value, null);
+public class Gauge {
+
+	private final String name;
+	private final StatsDClient client;
+
+	Gauge(String name, StatsDClient client) {
+		this.name = name;
+		this.client = client;
 	}
 
-	@Override
-	public String getSuffix() {
-		return "g";
+	public void value(long value) {
+		client.send(new com.flozano.statsd.metrics.values.GaugeValue(name,
+				value, false));
+	}
+
+	public void delta(long value) {
+		client.send(new com.flozano.statsd.metrics.values.GaugeValue(name,
+				value, true));
 	}
 
 }

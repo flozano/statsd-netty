@@ -1,4 +1,4 @@
-package com.flozano.statsd.netty;
+package com.flozano.statsd.client.netty;
 
 import static java.util.Objects.requireNonNull;
 import io.netty.bootstrap.Bootstrap;
@@ -20,8 +20,8 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.flozano.statsd.StatsDClient;
-import com.flozano.statsd.metrics.Metric;
+import com.flozano.statsd.client.StatsDClient;
+import com.flozano.statsd.metrics.values.MetricValue;
 
 public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 
@@ -93,7 +93,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 	}
 
 	@Override
-	public CompletableFuture<Void> send(Metric... metrics) {
+	public CompletableFuture<Void> send(MetricValue... metrics) {
 		validateMetrics(metrics);
 
 		CompletableFuture<Void> cf = new CompletableFuture<>();
@@ -131,7 +131,7 @@ public class NettyStatsDClientImpl implements StatsDClient, Closeable {
 		}
 	}
 
-	private static void validateMetrics(Metric[] metrics) {
+	private static void validateMetrics(MetricValue[] metrics) {
 		requireNonNull(metrics);
 		if (metrics.length < 1) {
 			throw new IllegalArgumentException(

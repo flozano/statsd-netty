@@ -1,4 +1,4 @@
-package com.flozano.statsd.netty;
+package com.flozano.statsd.client.netty;
 
 import static java.util.Objects.requireNonNull;
 import io.netty.buffer.ByteBuf;
@@ -12,10 +12,10 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.flozano.statsd.metrics.Metric;
+import com.flozano.statsd.metrics.values.MetricValue;
 
 public class MetricArrayToBytesEncoder extends
-		MessageToMessageEncoder<Metric[]> {
+		MessageToMessageEncoder<MetricValue[]> {
 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(MetricArrayToBytesEncoder.class);
@@ -41,11 +41,11 @@ public class MetricArrayToBytesEncoder extends
 
 	@Override
 	public boolean acceptOutboundMessage(Object msg) throws Exception {
-		return msg != null && msg instanceof Metric[];
+		return msg != null && msg instanceof MetricValue[];
 	}
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, Metric[] msg,
+	protected void encode(ChannelHandlerContext ctx, MetricValue[] msg,
 			List<Object> out) throws Exception {
 		if (msg == null || msg.length == 0) {
 			return;
@@ -53,7 +53,7 @@ public class MetricArrayToBytesEncoder extends
 
 		ByteBuf buf = null;
 		int currentBytes = 0;
-		for (Metric m : msg) {
+		for (MetricValue m : msg) {
 			if (m == null) {
 				continue;
 			}

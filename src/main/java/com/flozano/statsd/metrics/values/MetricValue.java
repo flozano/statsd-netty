@@ -1,18 +1,24 @@
-package com.flozano.statsd.metrics;
+package com.flozano.statsd.metrics.values;
 
 import static java.util.Objects.requireNonNull;
 
 import java.util.function.Consumer;
 
-public abstract class Metric {
+public abstract class MetricValue {
 	private final long value;
 	private final String name;
 	private final Double sampleRate;
+	private final String suffix;
 
-	public Metric(String name, long value, Double sampleRate) {
+	public MetricValue(String name, long value, Double sampleRate, String suffix) {
 		this.name = requireNonNull(name);
 		this.value = value;
 		this.sampleRate = validateSampleRate(sampleRate);
+		this.suffix = suffix;
+	}
+
+	protected boolean isSignRequiredInValue() {
+		return false;
 	}
 
 	private static Double validateSampleRate(Double sampleRate) {
@@ -39,7 +45,9 @@ public abstract class Metric {
 		return value;
 	}
 
-	public abstract String getSuffix();
+	public String getSuffix() {
+		return suffix;
+	}
 
 	@Override
 	public String toString() {
@@ -51,6 +59,9 @@ public abstract class Metric {
 	public void toStringParts(Consumer<String> parts) {
 		parts.accept(name);
 		parts.accept(":");
+		if (isSignRequiredInValue() && getValue() > 0) {
+			parts.accept("+");
+		}
 		parts.accept(Long.toString(getValue()));
 		parts.accept("|");
 		parts.accept(getSuffix());

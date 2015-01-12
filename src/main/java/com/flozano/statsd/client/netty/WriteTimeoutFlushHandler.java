@@ -1,4 +1,4 @@
-package com.flozano.statsd.netty;
+package com.flozano.statsd.client.netty;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;

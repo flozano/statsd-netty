@@ -15,14 +15,19 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.flozano.statsd.metrics.values.CountValue;
+import com.flozano.statsd.metrics.values.GaugeValue;
+import com.flozano.statsd.metrics.values.MetricValue;
+import com.flozano.statsd.metrics.values.TimingValue;
+
 @RunWith(Parameterized.class)
 public class MetricTest {
 
 	@Parameters(name = "{index}: type={0}, name={1}, value={2}, sampleRate={3}")
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
-		for (Class<? extends Metric> c : Arrays.asList(Gauge.class,
-				Count.class, Timing.class)) {
+		for (Class<? extends MetricValue> c : Arrays.asList(GaugeValue.class,
+				CountValue.class, TimingValue.class)) {
 			for (String name : Arrays.asList("some", "thing")) {
 				for (long value : Arrays.asList(100, 100000, 20000)) {
 					for (Double sampleRate : Arrays.<Double> asList(0.1, 0.5,
@@ -36,13 +41,13 @@ public class MetricTest {
 		return params;
 	}
 
-	Class<? extends Metric> type;
+	Class<? extends MetricValue> type;
 
 	String name = "something";
 	long value;
 	Double sampleRate;
 
-	public MetricTest(Class<? extends Metric> type, String name, long value,
+	public MetricTest(Class<? extends MetricValue> type, String name, long value,
 			Double sampleRate) {
 		this.type = type;
 		this.name = name;
@@ -52,9 +57,9 @@ public class MetricTest {
 
 	@Test
 	public void toStringTest() {
-		Metric metric = newMetric();
-		assertThat(metric.toString(),
-				is(equalTo(expectedValue(metric.getSuffix()))));
+		MetricValue metricValue = newMetric();
+		assertThat(metricValue.toString(),
+				is(equalTo(expectedValue(metricValue.getSuffix()))));
 	}
 
 	@Test
@@ -79,7 +84,7 @@ public class MetricTest {
 		return String.format("%s:%d|%s|@%.2f", name, value, suffix, sampleRate);
 	}
 
-	Metric newMetric() {
+	MetricValue newMetric() {
 		try {
 			return type.getConstructor(String.class, long.class, Double.class)
 					.newInstance(name, value, sampleRate);

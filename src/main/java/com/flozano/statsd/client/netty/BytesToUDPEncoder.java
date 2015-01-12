@@ -1,4 +1,4 @@
-package com.flozano.statsd.netty;
+package com.flozano.statsd.client.netty;
 
 import static java.util.Objects.requireNonNull;
 import io.netty.buffer.ByteBuf;

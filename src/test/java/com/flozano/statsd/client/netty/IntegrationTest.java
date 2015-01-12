@@ -1,4 +1,4 @@
-package com.flozano.statsd.netty;
+package com.flozano.statsd.client.netty;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
@@ -26,11 +26,12 @@ import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.flozano.statsd.metrics.Count;
-import com.flozano.statsd.metrics.Gauge;
-import com.flozano.statsd.metrics.Metric;
-import com.flozano.statsd.mock.NettyUDPServer;
-import com.flozano.statsd.mock.UDPServer;
+import com.flozano.statsd.client.mock.NettyUDPServer;
+import com.flozano.statsd.client.mock.UDPServer;
+import com.flozano.statsd.client.netty.NettyStatsDClientImpl;
+import com.flozano.statsd.metrics.values.CountValue;
+import com.flozano.statsd.metrics.values.GaugeValue;
+import com.flozano.statsd.metrics.values.MetricValue;
 
 @RunWith(Parameterized.class)
 public class IntegrationTest {
@@ -42,7 +43,7 @@ public class IntegrationTest {
 	@Parameters(name = "{index}: items={0}, rcvbuf={2}, flushProbability={3}, server={1}")
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
-		for (int numberOfItems : Arrays.asList(10, 100, 500)) {
+		for (int numberOfItems : Arrays.asList(/*10, 100, 500,*/1000)) {
 			for (Class<? extends UDPServer> serverClass : Arrays
 					.<Class<? extends UDPServer>> asList(
 					/* ThreadedUDPServer.class, */NettyUDPServer.Nio.class
@@ -97,7 +98,7 @@ public class IntegrationTest {
 				List<CompletableFuture<Void>> css = new ArrayList<>(
 						numberOfItems);
 				for (int i = 0; i < numberOfItems; i++) {
-					css.add(c.send(new Count("example", 1)));
+					css.add(c.send(new CountValue("example", 1)));
 				}
 
 				CompletableFuture.allOf(
@@ -114,9 +115,9 @@ public class IntegrationTest {
 	public void testSingleCall() throws Exception {
 		try (UDPServer server = newServer()) {
 			try (NettyStatsDClientImpl c = newClient()) {
-				Metric[] items = new Metric[numberOfItems];
+				MetricValue[] items = new MetricValue[numberOfItems];
 				for (int i = 0; i < numberOfItems; i++) {
-					items[i] = new Gauge("example", 2);
+					items[i] = new GaugeValue("example", 2);
 				}
 
 				c.send(items).get(10, TimeUnit.SECONDS);

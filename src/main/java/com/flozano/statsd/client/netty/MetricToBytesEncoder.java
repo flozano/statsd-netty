@@ -1,4 +1,4 @@
-package com.flozano.statsd.netty;
+package com.flozano.statsd.client.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,20 +9,20 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.flozano.statsd.metrics.Metric;
+import com.flozano.statsd.metrics.values.MetricValue;
 
-public class MetricToBytesEncoder extends MessageToByteEncoder<Metric> {
+public class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 
 	private static Logger LOGGER = LoggerFactory
 			.getLogger(MetricToBytesEncoder.class);
 
 	@Override
 	public boolean acceptOutboundMessage(Object msg) throws Exception {
-		return msg instanceof Metric;
+		return msg instanceof MetricValue;
 	}
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, Metric msg, ByteBuf out)
+	protected void encode(ChannelHandlerContext ctx, MetricValue msg, ByteBuf out)
 			throws Exception {
 		LOGGER.trace("Writing {} ", msg);
 		msg.toStringParts((part) -> out.writeBytes(part

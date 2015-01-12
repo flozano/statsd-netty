@@ -1,8 +1,8 @@
-package com.flozano.statsd;
+package com.flozano.statsd.client;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.flozano.statsd.metrics.Metric;
+import com.flozano.statsd.metrics.values.MetricValue;
 
 public interface StatsDClient {
 
@@ -13,6 +13,6 @@ public interface StatsDClient {
 	 *            the metrics to be sent
 	 * @return a future that allows to hook on the operation completion
 	 */
-	CompletableFuture<Void> send(Metric... metrics);
+	CompletableFuture<Void> send(MetricValue... metrics);
 
 }
