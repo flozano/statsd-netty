@@ -10,7 +10,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -23,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.flozano.statsd.client.StatsDClient;
 import com.flozano.statsd.metrics.values.MetricValue;
 
-public class NettyStatsDClientImpl implements StatsDClient, Closeable {
+public final class NettyStatsDClientImpl implements StatsDClient {
 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(NettyStatsDClientImpl.class);

@@ -1,10 +1,11 @@
 package com.flozano.statsd.client;
 
+import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
 import com.flozano.statsd.metrics.values.MetricValue;
 
-public interface StatsDClient {
+public interface StatsDClient extends Closeable {
 
 	/**
 	 * Send a bunch of metrics to StatsD server.

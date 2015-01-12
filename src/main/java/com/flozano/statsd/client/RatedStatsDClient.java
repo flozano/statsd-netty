@@ -2,6 +2,7 @@ package com.flozano.statsd.client;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -10,7 +11,7 @@ import java.util.function.Supplier;
 
 import com.flozano.statsd.metrics.values.MetricValue;
 
-public class RatedStatsDClient implements StatsDClient {
+public final class RatedStatsDClient implements StatsDClient {
 
 	private final StatsDClient inner;
 	private final double rate;
@@ -44,5 +45,10 @@ public class RatedStatsDClient implements StatsDClient {
 			}
 		}
 		return output.toArray(new MetricValue[output.size()]);
+	}
+
+	@Override
+	public void close() throws IOException {
+		inner.close();
 	}
 }
