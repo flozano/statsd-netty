@@ -12,4 +12,9 @@ public class TimingValue extends MetricValue {
 		this(name, value, null);
 	}
 
+	@Override
+	public MetricValue withRate(double rate) {
+		return new TimingValue(getName(), getValue(), rate);
+	}
+
 }

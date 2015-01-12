@@ -36,4 +36,9 @@ public class GaugeValue extends MetricValue {
 		return isDelta();
 	}
 
+	@Override
+	public MetricValue withRate(double rate) {
+		return new GaugeValue(getName(), getValue(), rate, delta);
+	}
+
 }

@@ -21,7 +21,7 @@ public abstract class MetricValue {
 		return false;
 	}
 
-	private static Double validateSampleRate(Double sampleRate) {
+	public static Double validateSampleRate(Double sampleRate) {
 		if (sampleRate == null) {
 			return null;
 		}
@@ -82,4 +82,6 @@ public abstract class MetricValue {
 		}
 		return sb.toString();
 	}
+
+	public abstract MetricValue withRate(double rate);
 }

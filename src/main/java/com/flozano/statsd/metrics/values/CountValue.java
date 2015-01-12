@@ -12,4 +12,9 @@ public class CountValue extends MetricValue {
 		this(name, value, null);
 	}
 
+	@Override
+	public MetricValue withRate(double rate) {
+		return new CountValue(getName(), getValue(), rate);
+	}
+
 }
