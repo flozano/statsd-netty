@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.flozano.statsd-netty</groupId>
 	<artifactId>statsd-netty</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.3</version>
 	<name>statsd-netty</name>
 	<description>A netty-based StatsD UDP client</description>
 	<url>https://github.com/flozano/statsd-netty</url>
@@ -18,7 +17,7 @@
 		<url>https://github.com/flozano/statsd-netty/</url>
 		<connection>scm:git:git@github.com:flozano/statsd-netty.git</connection>
 		<developerConnection>scm:git:git@github.com:flozano/statsd-netty.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v0.0.3</tag>
 	</scm>
 	<ciManagement>
 		<system>travis-ci</system>
