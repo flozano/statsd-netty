@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flozano.statsd.metrics.values.MetricValue;
 
-public class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
+class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 
 	private static Logger LOGGER = LoggerFactory
 			.getLogger(MetricToBytesEncoder.class);
@@ -22,8 +22,8 @@ public class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 	}
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, MetricValue msg, ByteBuf out)
-			throws Exception {
+	protected void encode(ChannelHandlerContext ctx, MetricValue msg,
+			ByteBuf out) throws Exception {
 		LOGGER.trace("Writing {} ", msg);
 		msg.toStringParts((part) -> out.writeBytes(part
 				.getBytes(StandardCharsets.UTF_8)));

@@ -7,9 +7,10 @@ import io.netty.handler.timeout.WriteTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WriteTimeoutFlushHandler extends ChannelDuplexHandler {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(WriteTimeoutFlushHandler.class);
+class WriteTimeoutFlushHandler extends ChannelDuplexHandler {
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(WriteTimeoutFlushHandler.class);
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)

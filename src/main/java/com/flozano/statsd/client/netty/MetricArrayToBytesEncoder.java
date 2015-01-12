@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flozano.statsd.metrics.values.MetricValue;
 
-public class MetricArrayToBytesEncoder extends
-		MessageToMessageEncoder<MetricValue[]> {
+class MetricArrayToBytesEncoder extends MessageToMessageEncoder<MetricValue[]> {
 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(MetricArrayToBytesEncoder.class);

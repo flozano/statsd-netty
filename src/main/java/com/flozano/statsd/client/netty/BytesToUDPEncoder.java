@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BytesToUDPEncoder extends MessageToMessageEncoder<ByteBuf> {
+class BytesToUDPEncoder extends MessageToMessageEncoder<ByteBuf> {
 	private static Logger LOGGER = LoggerFactory
 			.getLogger(BytesToUDPEncoder.class);
 	private final InetSocketAddress targetAddress;
