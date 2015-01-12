@@ -2,7 +2,7 @@ package com.flozano.statsd.client;
 
 import com.flozano.statsd.client.netty.NettyStatsDClientImpl;
 
-public class ClientBuilder {
+public final class ClientBuilder {
 	private Double rate = null;
 	private int flushProbability = 50;
 	private String host = "127.0.0.1";
