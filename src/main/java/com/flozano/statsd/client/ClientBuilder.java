@@ -2,33 +2,33 @@ package com.flozano.statsd.client;
 
 import com.flozano.statsd.client.netty.NettyStatsDClientImpl;
 
-public final class Builder {
+public class ClientBuilder {
 	private Double rate = null;
 	private int flushProbability = 50;
 	private String host = "127.0.0.1";
 	private int port = 8125;
 
-	public Builder withRate(double rate) {
+	public ClientBuilder withRate(double rate) {
 		this.rate = rate;
 		return this;
 	}
 
-	public Builder withFlushProbability(int flushProbability) {
+	public ClientBuilder withFlushProbability(int flushProbability) {
 		this.flushProbability = flushProbability;
 		return this;
 	}
 
-	public Builder withHost(String host) {
+	public ClientBuilder withHost(String host) {
 		this.host = host;
 		return this;
 	}
 
-	public Builder withPort(int port) {
+	public ClientBuilder withPort(int port) {
 		this.port = port;
 		return this;
 	}
 
-	public StatsDClient build() {
+	public StatsDClient buildClient() {
 		NettyStatsDClientImpl impl = new NettyStatsDClientImpl(host, port,
 				flushProbability);
 		if (rate != null) {
