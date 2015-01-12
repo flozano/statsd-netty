@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.flozano.statsd.client.mock.NettyUDPServer;
 import com.flozano.statsd.client.mock.UDPServer;
-import com.flozano.statsd.client.netty.NettyStatsDClientImpl;
 import com.flozano.statsd.metrics.values.CountValue;
 import com.flozano.statsd.metrics.values.GaugeValue;
 import com.flozano.statsd.metrics.values.MetricValue;
@@ -48,9 +47,9 @@ public class IntegrationTest {
 		for (int numberOfItems : Arrays.asList(10, 100, 500)) {
 			for (Class<? extends UDPServer> serverClass : Arrays
 					.<Class<? extends UDPServer>> asList(
-					/* ThreadedUDPServer.class, */NettyUDPServer.Nio.class
-					/* ,NettyUDPServer.Oio.class */)) {
-				for (int recvbufValue : Arrays.asList(100_000, 500_000,
+					/* ThreadedUDPServer.class, *//* NettyUDPServer.Nio.class */
+					NettyUDPServer.Oio.class)) {
+				for (int recvbufValue : Arrays.asList(200_000, 500_000,
 						1_000_000)) {
 					for (int flushProbability : Arrays.asList(0, 20, 80)) {
 						params.add(new Object[] { numberOfItems, serverClass,
