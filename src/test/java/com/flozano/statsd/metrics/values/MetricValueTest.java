@@ -1,4 +1,4 @@
-package com.flozano.statsd.metrics;
+package com.flozano.statsd.metrics.values;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -21,7 +21,7 @@ import com.flozano.statsd.metrics.values.MetricValue;
 import com.flozano.statsd.metrics.values.TimingValue;
 
 @RunWith(Parameterized.class)
-public class MetricTest {
+public class MetricValueTest {
 
 	@Parameters(name = "{index}: type={0}, name={1}, value={2}, sampleRate={3}")
 	public static Collection<Object[]> params() {
@@ -47,7 +47,7 @@ public class MetricTest {
 	long value;
 	Double sampleRate;
 
-	public MetricTest(Class<? extends MetricValue> type, String name, long value,
+	public MetricValueTest(Class<? extends MetricValue> type, String name, long value,
 			Double sampleRate) {
 		this.type = type;
 		this.name = name;

@@ -32,7 +32,7 @@ public class Timer {
 		}
 
 		@Override
-		public void close() throws Exception {
+		public void close() {
 			long elapsed = clock.millis() - startTime;
 			client.send(new TimingValue(name, elapsed));
 		}
