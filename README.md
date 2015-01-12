@@ -7,7 +7,17 @@ A Netty-based statsd client with Apache 2.0 License
 
 How to use:
 ----------
+Maven dependency:
+```xml
+		<dependency>
+			<groupId>com.flozano.statsd-netty</groupId>
+			<artifactId>statsd-netty</artifactId>
+			<version>0.4</version>
+		</dependency>
+```
 
+
+Example code:
 
 ```java
 		// Indicates how likely the writes will flush to the statsd server
