@@ -15,11 +15,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.flozano.statsd.metrics.values.CountValue;
-import com.flozano.statsd.metrics.values.GaugeValue;
-import com.flozano.statsd.metrics.values.MetricValue;
-import com.flozano.statsd.metrics.values.TimingValue;
-
 @RunWith(Parameterized.class)
 public class MetricValueTest {
 

@@ -9,6 +9,10 @@ public class GaugeValue extends MetricValue {
 	public GaugeValue(String name, long value, Double sample, boolean delta) {
 		super(name, value, sample, SUFFIX);
 		this.delta = delta;
+		if (!delta && value < 0) {
+			throw new IllegalArgumentException(
+					"A negative number is not a valid absolute gauge value");
+		}
 	}
 
 	public GaugeValue(String name, long value, Double sample) {
