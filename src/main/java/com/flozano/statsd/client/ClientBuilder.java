@@ -4,7 +4,7 @@ import com.flozano.statsd.client.netty.NettyStatsDClientImpl;
 
 public final class ClientBuilder {
 	private Double rate = null;
-	private int flushProbability = 50;
+	private double flushProbability = 0.5;
 	private String host = "127.0.0.1";
 	private int port = 8125;
 

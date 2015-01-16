@@ -1,6 +1,7 @@
 package com.flozano.statsd.client.netty;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.flozano.statsd.metrics.values.MetricValue;
 
+@Sharable
 class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 
 	private static Logger LOGGER = LoggerFactory

@@ -51,7 +51,7 @@ public class IntegrationTest {
 					NettyUDPServer.Oio.class)) {
 				for (int recvbufValue : Arrays.asList(200_000, 500_000,
 						1_000_000)) {
-					for (int flushProbability : Arrays.asList(0, 20, 80)) {
+					for (double flushProbability : Arrays.asList(0.0, 0.2, 0.8)) {
 						params.add(new Object[] { numberOfItems, serverClass,
 								recvbufValue, flushProbability });
 					}
@@ -70,11 +70,11 @@ public class IntegrationTest {
 
 	private final int recvbufValue;
 
-	private final int flushProbability;
+	private final double flushProbability;
 
 	public IntegrationTest(int numberOfItems,
 			Class<? extends UDPServer> serverClass, int recvbufValue,
-			int flushProbability) {
+			double flushProbability) {
 		this.numberOfItems = numberOfItems;
 		this.serverClass = serverClass;
 		this.recvbufValue = recvbufValue;

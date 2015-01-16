@@ -1,12 +1,14 @@
 package com.flozano.statsd.client.netty;
 
 import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.WriteTimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Sharable
 class WriteTimeoutFlushHandler extends ChannelDuplexHandler {
 
 	private static final Logger LOGGER = LoggerFactory

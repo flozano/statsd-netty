@@ -37,7 +37,7 @@ public final class NettyStatsDClientImpl implements StatsDClient {
 
 	private NettyStatsDClientImpl(String host, int port,
 			EventLoopGroup eventLoopGroup, boolean defaultEventLoopGroup,
-			int flushProbability) {
+			double flushProbability) {
 		this.eventLoopGroup = requireNonNull(eventLoopGroup);
 		this.defaultEventLoopGroup = defaultEventLoopGroup;
 		bootstrap = new Bootstrap();
@@ -83,11 +83,11 @@ public final class NettyStatsDClientImpl implements StatsDClient {
 	}
 
 	public NettyStatsDClientImpl(String host, int port,
-			EventLoopGroup eventLoopGroup, int flushProbability) {
+			EventLoopGroup eventLoopGroup, double flushProbability) {
 		this(host, port, eventLoopGroup, false, flushProbability);
 	}
 
-	public NettyStatsDClientImpl(String host, int port, int flushProbability) {
+	public NettyStatsDClientImpl(String host, int port, double flushProbability) {
 		this(host, port, new NioEventLoopGroup(), true, flushProbability);
 	}
 

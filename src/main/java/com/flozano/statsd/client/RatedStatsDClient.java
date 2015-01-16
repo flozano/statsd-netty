@@ -33,15 +33,26 @@ public final class RatedStatsDClient implements StatsDClient {
 		if (metrics == null || metrics.length == 0) {
 			return CompletableFuture.completedFuture(null);
 		}
-		return inner.send(transformed(metrics));
+		MetricValue[] transformed = transformed(metrics);
+		if (transformed.length == 0) {
+			return CompletableFuture.completedFuture(null);
+		}
+		return inner.send(transformed);
 	}
 
 	private MetricValue[] transformed(MetricValue[] metrics) {
+		if (rate == 1.0) {
+			return metrics;
+		}
 		Random random = randomSupplier.get();
 		ArrayList<MetricValue> output = new ArrayList<MetricValue>();
 		for (MetricValue metric : metrics) {
-			if (random.nextDouble() <= rate) {
+			double randomValue = random.nextDouble();
+			if (randomValue <= rate) {
 				output.add(metric.withRate(rate));
+			} else {
+				System.err.println("Discarded because " + randomValue + " > "
+						+ rate);
 			}
 		}
 		return output.toArray(new MetricValue[output.size()]);
