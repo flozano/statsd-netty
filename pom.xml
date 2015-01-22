@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.flozano.statsd-netty</groupId>
 	<artifactId>statsd-netty</artifactId>
-	<version>0.1.1</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<name>statsd-netty</name>
 	<description>A netty-based StatsD UDP client</description>
 	<url>https://github.com/flozano/statsd-netty</url>
@@ -17,7 +17,7 @@
 		<url>https://github.com/flozano/statsd-netty/</url>
 		<connection>scm:git:git@github.com:flozano/statsd-netty.git</connection>
 		<developerConnection>scm:git:git@github.com:flozano/statsd-netty.git</developerConnection>
-		<tag>v0.1.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<ciManagement>
 		<system>travis-ci</system>
