@@ -130,7 +130,6 @@ final class NettyStatsDClientImpl implements StatsDClient {
 
 	@Override
 	public StatsDClient batch() {
-		// TODO Auto-generated method stub
-		return null;
+		return new BatchStatsDClient(this);
 	}
 }
