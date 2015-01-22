@@ -11,7 +11,7 @@ import com.flozano.statsd.metrics.Timer.TimeKeeping;
 public class Example {
 
 	@Test
-	public void withBuilder() throws Exception {
+	public void simple() throws Exception {
 		try (Metrics metrics = MetricsBuilder.create()
 				.withClient((clientBuilder) -> //
 						clientBuilder.withHost("127.0.0.1") //
@@ -24,6 +24,33 @@ public class Example {
 					getConnectionsFromPool());
 			metrics.gauge("activeSessions").delta(-1);
 
+			try (TimeKeeping o = metrics.timer("timeSpentSavingData").time()) {
+				saveData();
+			}
+		}
+	}
+
+	@Test
+	public void batch() throws Exception {
+		try (Metrics metrics = MetricsBuilder.create()
+				.withClient((clientBuilder) -> //
+						clientBuilder.withHost("127.0.0.1") //
+								.withPort(8125) //
+								.withSampleRate(0.5) //
+				).withClock(Clock.systemUTC()).build()) {
+
+			// Send a counter metric immediately
+			metrics.counter("visitors").hit();
+
+			// Create a batch of metrics that will be sent at the end of the try
+			// block.
+			try (Metrics batch = metrics.batch()) {
+				batch.gauge("activeDatabaseConnections").value(
+						getConnectionsFromPool());
+				batch.gauge("activeSessions").delta(-1);
+			}
+
+			// Measure the time spent inside the try block
 			try (TimeKeeping o = metrics.timer("timeSpentSavingData").time()) {
 				saveData();
 			}
