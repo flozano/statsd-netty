@@ -13,7 +13,7 @@ Maven dependency:
 		<dependency>
 			<groupId>com.flozano.statsd-netty</groupId>
 			<artifactId>statsd-netty</artifactId>
-			<version>0.0.4</version>
+			<version>0.1.0</version>
 		</dependency>
 ```
 
@@ -21,18 +21,26 @@ Maven dependency:
 Example code:
 
 ```java
-		// Indicates how likely the writes will flush to the statsd server
-		int rateOfFlush = 80;
+		try (Metrics metrics = MetricsBuilder.create()
+				.withClient((clientBuilder) -> //
+						clientBuilder.withHost("127.0.0.1") //
+								.withPort(8125) //
+								.withSampleRate(0.5) // send 50% of metrics only
+				).withClock(Clock.systemUTC()).build()) {
 
-		// Metrics class allows auto-closing of resources
-		try (Metrics metrics = new Metrics(new NettyStatsDClientImpl(
-				"127.0.0.1", 8125, rateOfFlush))) {
+			// Send a counter metric immediately
 			metrics.counter("visitors").hit();
-			metrics.counter("soldItems").count(25);
-			metrics.gauge("activeDatabaseConnections").value(
-					getConnectionsFromPool());
-			metrics.gauge("activeSessions").delta(-1);
-			try (Ongoing o = metrics.timer("timeSpentSavingData").time()) {
+
+			// Create a batch of metrics that will be sent at the end of the try
+			// block.
+			try (Metrics batch = metrics.batch()) {
+				batch.gauge("activeDatabaseConnections").value(
+						getConnectionsFromPool());
+				batch.gauge("activeSessions").delta(-1);
+			}
+
+			// Measure the time spent inside the try block
+			try (TimeKeeping o = metrics.timer("timeSpentSavingData").time()) {
 				saveData();
 			}
 		}

@@ -36,7 +36,7 @@ public class Example {
 				.withClient((clientBuilder) -> //
 						clientBuilder.withHost("127.0.0.1") //
 								.withPort(8125) //
-								.withSampleRate(0.5) //
+								.withSampleRate(0.5) // send 50% of metrics only
 				).withClock(Clock.systemUTC()).build()) {
 
 			// Send a counter metric immediately
