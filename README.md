@@ -6,6 +6,7 @@ A Netty-based statsd client with Apache 2.0 License.
 
 It requires Java 8, netty and SLF4J.
 
+
 How to use:
 ----------
 Maven dependency:
@@ -13,7 +14,7 @@ Maven dependency:
 		<dependency>
 			<groupId>com.flozano.statsd-netty</groupId>
 			<artifactId>statsd-netty</artifactId>
-			<version>0.1.0</version>
+			<version>0.1.1</version>
 		</dependency>
 ```
 
