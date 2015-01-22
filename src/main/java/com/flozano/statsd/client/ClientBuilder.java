@@ -1,5 +1,7 @@
 package com.flozano.statsd.client;
 
+import io.netty.channel.EventLoopGroup;
+
 /**
  * Builder for StatsDClient
  *
@@ -43,6 +45,15 @@ public interface ClientBuilder {
 	 * The UDP port where the server is listening to.
 	 */
 	ClientBuilder withPort(int port);
+
+	/**
+	 * Allow to provide a pre-created EventLoopGroup.
+	 *
+	 * If provided, when {@link StatsDClient#close()} is invoked, the
+	 * EventLoopGroup will NOT be shutdown.
+	 *
+	 */
+	ClientBuilder withEventLoopGroup(EventLoopGroup eventLoopGroup);
 
 	/**
 	 * @return a newly configured StatsD client.
