@@ -1,6 +1,6 @@
-package com.flozano.statsd.metrics.values;
+package com.flozano.statsd.values;
 
-public class CountValue extends MetricValue {
+public final class CountValue extends MetricValue {
 
 	private static final String SUFFIX = "c";
 

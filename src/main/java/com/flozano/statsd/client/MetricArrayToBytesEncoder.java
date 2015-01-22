@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.netty;
+package com.flozano.statsd.client;
 
 import static java.util.Objects.requireNonNull;
 import io.netty.buffer.ByteBuf;
@@ -13,13 +13,12 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.flozano.statsd.metrics.values.MetricValue;
+import com.flozano.statsd.values.MetricValue;
 
 @Sharable
 class MetricArrayToBytesEncoder extends MessageToMessageEncoder<MetricValue[]> {
-
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(MetricArrayToBytesEncoder.class);
+			.getLogger(StatsDClient.class);
 
 	public static final int MAX_MTU = 800;
 
@@ -80,7 +79,8 @@ class MetricArrayToBytesEncoder extends MessageToMessageEncoder<MetricValue[]> {
 		if (buf != null) {
 			out.add(buf);
 		}
-		LOGGER.trace("Wrote {} packets", out.size());
+		LOGGER.trace("Encoded {} metrics into {} different packets",
+				msg.length, out.size());
 	}
 
 	private static class ByteCountingWriter implements Consumer<String> {

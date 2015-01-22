@@ -1,6 +1,6 @@
-package com.flozano.statsd.metrics.values;
+package com.flozano.statsd.values;
 
-public class GaugeValue extends MetricValue {
+public final class GaugeValue extends MetricValue {
 
 	private static final String SUFFIX = "g";
 

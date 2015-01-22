@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.mock;
+package com.flozano.statsd.test.mockserver;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

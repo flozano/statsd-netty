@@ -1,44 +1,48 @@
 package com.flozano.statsd.metrics;
 
-import static java.util.Objects.requireNonNull;
+import com.flozano.statsd.util.NameComposer;
 
-import java.io.IOException;
-import java.time.Clock;
+/**
+ * Façade for managing metrics
+ *
+ * @author flozano
+ *
+ */
+public interface Metrics extends AutoCloseable {
 
-import com.flozano.statsd.client.StatsDClient;
+	/**
+	 * @return a named timer
+	 */
+	Timer timer(String... name);
 
-public class Metrics implements AutoCloseable {
+	/**
+	 * @return a named counter
+	 */
+	Counter counter(String... name);
 
-	private final StatsDClient client;
-	private final Clock clock;
+	/**
+	 * @return a named gauge
+	 */
+	Gauge gauge(String... name);
 
-	public Metrics(StatsDClient client) {
-		this(client, Clock.systemUTC());
+	/**
+	 * @return a composed metric names
+	 */
+	default String metricName(String... names) {
+		return NameComposer.composeName(names);
 	}
 
-	public Metrics(StatsDClient client, Clock clock) {
-		this.client = requireNonNull(client);
-		this.clock = requireNonNull(clock);
-	}
-
-	public Timer timer(String name) {
-		return new Timer(requireNonNull(name), client, clock);
-	}
-
-	public Counter counter(String name) {
-		return new Counter(requireNonNull(name), client);
-	}
-
-	public Gauge gauge(String name) {
-		return new Gauge(requireNonNull(name), client);
-	}
+	/**
+	 * Create. a batched version of this Metrics.
+	 *
+	 * The batched version will not send the metrics until the
+	 * {@link Metrics#close()} method is invoked.
+	 *
+	 * Closing the returned Metrics will NOT close this one.
+	 */
+	Metrics batch();
 
 	@Override
-	public void close() {
-		try {
-			client.close();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	public void close();
+
 }

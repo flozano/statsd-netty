@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.mock;
+package com.flozano.statsd.test.mockserver;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;

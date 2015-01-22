@@ -1,8 +1,10 @@
-package com.flozano.statsd.metrics.values;
+package com.flozano.statsd.values;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+
+import com.flozano.statsd.values.GaugeValue;
 
 public class GaugeValueTest {
 

@@ -1,22 +1,9 @@
 package com.flozano.statsd.metrics;
 
-import com.flozano.statsd.client.StatsDClient;
-import com.flozano.statsd.metrics.values.CountValue;
+public interface Counter extends Metric {
 
-public class Counter {
-	private final StatsDClient client;
-	private final String name;
+	void count(long value);
 
-	Counter(String name, StatsDClient client) {
-		this.name = name;
-		this.client = client;
-	}
+	void hit();
 
-	public void count(long value) {
-		client.send(new CountValue(name, value));
-	}
-
-	public void hit() {
-		count(1l);
-	}
 }

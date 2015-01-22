@@ -38,6 +38,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<!-- Versions -->
 		<awaitility.version>1.6.3</awaitility.version>
+		<guava.version>18.0</guava.version>
 		<jacoco-maven-plugin.version>0.7.2.201409121644</jacoco-maven-plugin.version>
 		<java.version>1.8</java.version>
 		<javassist.version>3.19.0-GA</javassist.version>
@@ -60,6 +61,7 @@
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<version>${javassist.version}</version>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
@@ -93,6 +95,12 @@
 			<groupId>com.jayway.awaitility</groupId>
 			<artifactId>awaitility</artifactId>
 			<version>${awaitility.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

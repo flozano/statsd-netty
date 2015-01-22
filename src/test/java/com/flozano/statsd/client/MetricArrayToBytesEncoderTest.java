@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.netty;
+package com.flozano.statsd.client;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.times;
@@ -24,9 +24,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.flozano.statsd.client.netty.MetricArrayToBytesEncoder;
-import com.flozano.statsd.metrics.values.CountValue;
-import com.flozano.statsd.metrics.values.MetricValue;
+import com.flozano.statsd.client.MetricArrayToBytesEncoder;
+import com.flozano.statsd.values.CountValue;
+import com.flozano.statsd.values.MetricValue;
 
 public class MetricArrayToBytesEncoderTest {
 

@@ -2,20 +2,25 @@ package com.flozano.statsd.client;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
-import com.flozano.statsd.metrics.values.MetricValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public final class RatedStatsDClient implements StatsDClient {
+import com.flozano.statsd.values.MetricValue;
+
+final class RatedStatsDClient implements StatsDClient {
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(StatsDClient.class);
 
 	private final StatsDClient inner;
 	private final double rate;
-	private final Supplier<Random> randomSupplier;
+	private final Supplier<Double> randomDoubleSupplier;
 
 	public RatedStatsDClient(StatsDClient inner, double rate) {
 		this(inner, rate, ThreadLocalRandom::current);
@@ -23,9 +28,14 @@ public final class RatedStatsDClient implements StatsDClient {
 
 	public RatedStatsDClient(StatsDClient inner, double rate,
 			Supplier<Random> randomSupplier) {
+		this(inner, () -> randomSupplier.get().nextDouble(), rate);
+	}
+
+	public RatedStatsDClient(StatsDClient inner,
+			Supplier<Double> randomDoubleSupplier, double rate) {
 		this.inner = requireNonNull(inner);
+		this.randomDoubleSupplier = requireNonNull(randomDoubleSupplier);
 		this.rate = MetricValue.validateSampleRate(rate);
-		this.randomSupplier = randomSupplier;
 	}
 
 	@Override
@@ -44,22 +54,27 @@ public final class RatedStatsDClient implements StatsDClient {
 		if (rate == 1.0) {
 			return metrics;
 		}
-		Random random = randomSupplier.get();
 		ArrayList<MetricValue> output = new ArrayList<MetricValue>();
 		for (MetricValue metric : metrics) {
-			double randomValue = random.nextDouble();
+			double randomValue = randomDoubleSupplier.get();
 			if (randomValue <= rate) {
 				output.add(metric.withRate(rate));
 			} else {
-				System.err.println("Discarded because " + randomValue + " > "
-						+ rate);
+				LOGGER.trace(
+						"Metric discarded: random value is greater than rate (randomValue={}, rate={}, metric={}",
+						randomValue, rate, metric);
 			}
 		}
 		return output.toArray(new MetricValue[output.size()]);
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		inner.close();
+	}
+
+	@Override
+	public StatsDClient batch() {
+		return new RatedStatsDClient(new BatchStatsDClient(inner), rate);
 	}
 }

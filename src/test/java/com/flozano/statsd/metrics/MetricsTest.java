@@ -19,10 +19,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.flozano.statsd.client.StatsDClient;
-import com.flozano.statsd.metrics.Timer.Ongoing;
-import com.flozano.statsd.metrics.values.CountValue;
-import com.flozano.statsd.metrics.values.GaugeValue;
-import com.flozano.statsd.metrics.values.TimingValue;
+import com.flozano.statsd.metrics.Timer.TimeKeeping;
+import com.flozano.statsd.values.CountValue;
+import com.flozano.statsd.values.GaugeValue;
+import com.flozano.statsd.values.TimingValue;
 
 public class MetricsTest {
 
@@ -34,7 +34,8 @@ public class MetricsTest {
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		metrics = new Metrics(client, clock);
+		metrics = MetricsBuilder.create().withClient(client).withClock(clock)
+				.build();
 	}
 
 	@Test
@@ -75,7 +76,7 @@ public class MetricsTest {
 		long margin = 100;
 		ArgumentCaptor<TimingValue> argument = ArgumentCaptor
 				.forClass(TimingValue.class);
-		try (Ongoing o = metrics.timer("timer").time()) {
+		try (TimeKeeping o = metrics.timer("timer").time()) {
 			Thread.sleep(waiting);
 		}
 		verify(client, times(1)).send(argument.capture());

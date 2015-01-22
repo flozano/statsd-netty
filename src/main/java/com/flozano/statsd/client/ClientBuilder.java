@@ -1,40 +1,52 @@
 package com.flozano.statsd.client;
 
-import com.flozano.statsd.client.netty.NettyStatsDClientImpl;
+/**
+ * Builder for StatsDClient
+ *
+ * @author flozano
+ *
+ */
+public interface ClientBuilder {
 
-public final class ClientBuilder {
-	private Double rate = null;
-	private double flushProbability = 0.5;
-	private String host = "127.0.0.1";
-	private int port = 8125;
-
-	public ClientBuilder withRate(double rate) {
-		this.rate = rate;
-		return this;
+	/**
+	 * Creates a new StatsD client builder
+	 *
+	 */
+	static ClientBuilder create() {
+		return new ClientBuilderImpl();
 	}
 
-	public ClientBuilder withFlushProbability(int flushProbability) {
-		this.flushProbability = flushProbability;
-		return this;
-	}
+	/**
+	 * Sets the sample rate of elements that will be actually sent.
+	 *
+	 * Eg: if rate is 0.75d, more or les 75% of items will be sent (and the
+	 * \@0.75 suffix will be added to the metrics)
+	 *
+	 */
+	ClientBuilder withSampleRate(Double rate);
 
-	public ClientBuilder withHost(String host) {
-		this.host = host;
-		return this;
-	}
+	/**
+	 * Sets the rate at which the client will flush the pending metric values to
+	 * the network.
+	 *
+	 * Eg: if a rate is 0.1d, 1 in 10 writes will flush the pending metrics.
+	 *
+	 */
+	ClientBuilder withFlushRate(double rate);
 
-	public ClientBuilder withPort(int port) {
-		this.port = port;
-		return this;
-	}
+	/**
+	 * The StatsD hostname that will receive the metric values
+	 */
+	ClientBuilder withHost(String host);
 
-	public StatsDClient buildClient() {
-		NettyStatsDClientImpl impl = new NettyStatsDClientImpl(host, port,
-				flushProbability);
-		if (rate != null) {
-			return new RatedStatsDClient(impl, rate);
-		} else {
-			return impl;
-		}
-	}
+	/**
+	 * The UDP port where the server is listening to.
+	 */
+	ClientBuilder withPort(int port);
+
+	/**
+	 * @return a newly configured StatsD client.
+	 */
+	StatsDClient build();
+
 }

@@ -1,41 +1,13 @@
 package com.flozano.statsd.metrics;
 
-import static java.util.Objects.requireNonNull;
+public interface Timer extends Metric {
 
-import java.time.Clock;
+	TimeKeeping time();
 
-import com.flozano.statsd.client.StatsDClient;
-import com.flozano.statsd.metrics.values.TimingValue;
-
-public class Timer {
-
-	private final StatsDClient client;
-	private final String name;
-	private final Clock clock;
-
-	Timer(String name, StatsDClient client, Clock clock) {
-		this.clock = requireNonNull(clock);
-		this.client = requireNonNull(client);
-		this.name = requireNonNull(name);
-	}
-
-	public Ongoing time() {
-		return new Ongoing();
-	}
-
-	public class Ongoing implements AutoCloseable {
-
-		private long startTime;
-
-		public Ongoing() {
-			startTime = clock.millis();
-		}
+	public interface TimeKeeping extends AutoCloseable {
 
 		@Override
-		public void close() {
-			long elapsed = clock.millis() - startTime;
-			client.send(new TimingValue(name, elapsed));
-		}
-
+		public void close();
 	}
+
 }

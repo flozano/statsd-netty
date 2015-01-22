@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.netty;
+package com.flozano.statsd.client;
 
 import static java.util.Objects.requireNonNull;
 import io.netty.buffer.ByteBuf;
@@ -16,23 +16,23 @@ import org.slf4j.LoggerFactory;
 
 @Sharable
 class BytesToUDPEncoder extends MessageToMessageEncoder<ByteBuf> {
-	private static Logger LOGGER = LoggerFactory
-			.getLogger(BytesToUDPEncoder.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(StatsDClient.class);
 	private final InetSocketAddress targetAddress;
-	private final double flushProbability;
+	private final double flushRate;
 
-	public BytesToUDPEncoder(String host, int port, double flushProbability) {
+	public BytesToUDPEncoder(String host, int port, double flushRate) {
 		this.targetAddress = new InetSocketAddress(requireNonNull(host),
 				validatePort(port));
-		this.flushProbability = validateFlushProbability(flushProbability);
+		this.flushRate = validateFlushRate(flushRate);
 	}
 
-	private static double validateFlushProbability(double flushProbability) {
-		if (flushProbability < 0 || flushProbability > 1) {
+	private static double validateFlushRate(double flushRate) {
+		if (flushRate < 0 || flushRate > 1) {
 			throw new IllegalArgumentException(
-					"Invalid rate in flush probability (must be between 0 and 1)");
+					"Invalid flush rate (must be between 0 and 1)");
 		}
-		return flushProbability;
+		return flushRate;
 	}
 
 	private static int validatePort(int port) {
@@ -55,7 +55,7 @@ class BytesToUDPEncoder extends MessageToMessageEncoder<ByteBuf> {
 		msg.retain(); // Retain because reuse of same byteBuf?
 		out.add(new DatagramPacket(msg, targetAddress));
 		LOGGER.trace("Wrote {} ", msg);
-		if (ThreadLocalRandom.current().nextDouble() < flushProbability) {
+		if (ThreadLocalRandom.current().nextDouble() < flushRate) {
 			ctx.flush();
 		}
 	}

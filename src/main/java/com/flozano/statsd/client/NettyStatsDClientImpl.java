@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.netty;
+package com.flozano.statsd.client;
 
 import static java.util.Objects.requireNonNull;
 import io.netty.bootstrap.Bootstrap;
@@ -10,7 +10,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -19,13 +18,12 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.flozano.statsd.client.StatsDClient;
-import com.flozano.statsd.metrics.values.MetricValue;
+import com.flozano.statsd.values.MetricValue;
 
-public final class NettyStatsDClientImpl implements StatsDClient {
+final class NettyStatsDClientImpl implements StatsDClient {
 
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(NettyStatsDClientImpl.class);
+			.getLogger(StatsDClient.class);
 
 	private final Bootstrap bootstrap;
 	private final Channel channel;
@@ -37,7 +35,7 @@ public final class NettyStatsDClientImpl implements StatsDClient {
 
 	private NettyStatsDClientImpl(String host, int port,
 			EventLoopGroup eventLoopGroup, boolean defaultEventLoopGroup,
-			double flushProbability) {
+			double flushRate) {
 		this.eventLoopGroup = requireNonNull(eventLoopGroup);
 		this.defaultEventLoopGroup = defaultEventLoopGroup;
 		bootstrap = new Bootstrap();
@@ -51,16 +49,8 @@ public final class NettyStatsDClientImpl implements StatsDClient {
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
 				ch.pipeline()
-						// Keep original timer-based approach for now.
-						// // .addLast("write-timeouts",
-						// // new WriteTimeoutHandler(2, TimeUnit.SECONDS))
-						// // .addLast("error-handler",
-						// // new WriteTimeoutFlushHandler())
-						//
-						.addLast(
-								"udp",
-								new BytesToUDPEncoder(host, port,
-										flushProbability))
+						.addLast("udp",
+								new BytesToUDPEncoder(host, port, flushRate))
 						.addLast("array-encoder",
 								new MetricArrayToBytesEncoder(500))
 						.addLast("encoder", new MetricToBytesEncoder());
@@ -83,23 +73,23 @@ public final class NettyStatsDClientImpl implements StatsDClient {
 	}
 
 	public NettyStatsDClientImpl(String host, int port,
-			EventLoopGroup eventLoopGroup, double flushProbability) {
-		this(host, port, eventLoopGroup, false, flushProbability);
+			EventLoopGroup eventLoopGroup, double flushRate) {
+		this(host, port, eventLoopGroup, false, flushRate);
 	}
 
-	public NettyStatsDClientImpl(String host, int port, double flushProbability) {
-		this(host, port, new NioEventLoopGroup(), true, flushProbability);
+	public NettyStatsDClientImpl(String host, int port, double flushRate) {
+		this(host, port, new NioEventLoopGroup(), true, flushRate);
 	}
 
 	@Override
-	public CompletableFuture<Void> send(MetricValue... metrics) {
-		validateMetrics(metrics);
+	public CompletableFuture<Void> send(MetricValue... metricValues) {
+		validatemetricValues(metricValues);
 
 		CompletableFuture<Void> cf = new CompletableFuture<>();
-		channel.write(metrics).addListener(
+		channel.write(metricValues).addListener(
 				f -> {
-					LOGGER.trace("Message sent (future={}, messages={})", f,
-							metrics);
+					LOGGER.trace("Message sent (future={}, metricValues={})",
+							f, metricValues);
 					try {
 						f.get();
 						if (f.isSuccess()) {
@@ -116,7 +106,7 @@ public final class NettyStatsDClientImpl implements StatsDClient {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		flushTimer.cancel();
 		channel.flush();
 		try {
@@ -130,11 +120,17 @@ public final class NettyStatsDClientImpl implements StatsDClient {
 		}
 	}
 
-	private static void validateMetrics(MetricValue[] metrics) {
-		requireNonNull(metrics);
-		if (metrics.length < 1) {
+	private static void validatemetricValues(MetricValue[] metricValues) {
+		requireNonNull(metricValues);
+		if (metricValues.length < 1) {
 			throw new IllegalArgumentException(
-					"At least one metric must be provided");
+					"At least one metric value must be provided");
 		}
+	}
+
+	@Override
+	public StatsDClient batch() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

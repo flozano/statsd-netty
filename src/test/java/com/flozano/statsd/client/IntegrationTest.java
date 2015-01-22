@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.netty;
+package com.flozano.statsd.client;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
@@ -27,11 +27,12 @@ import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.flozano.statsd.client.mock.NettyUDPServer;
-import com.flozano.statsd.client.mock.UDPServer;
-import com.flozano.statsd.metrics.values.CountValue;
-import com.flozano.statsd.metrics.values.GaugeValue;
-import com.flozano.statsd.metrics.values.MetricValue;
+import com.flozano.statsd.client.NettyStatsDClientImpl;
+import com.flozano.statsd.test.mockserver.NettyUDPServer;
+import com.flozano.statsd.test.mockserver.UDPServer;
+import com.flozano.statsd.values.CountValue;
+import com.flozano.statsd.values.GaugeValue;
+import com.flozano.statsd.values.MetricValue;
 
 @RunWith(Parameterized.class)
 public class IntegrationTest {

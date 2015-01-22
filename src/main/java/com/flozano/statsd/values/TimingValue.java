@@ -1,6 +1,6 @@
-package com.flozano.statsd.metrics.values;
+package com.flozano.statsd.values;
 
-public class TimingValue extends MetricValue {
+public final class TimingValue extends MetricValue {
 
 	private static final String SUFFIX = "ms";
 

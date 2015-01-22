@@ -1,4 +1,4 @@
-package com.flozano.statsd.metrics.values;
+package com.flozano.statsd.values;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -14,6 +14,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import com.flozano.statsd.values.CountValue;
+import com.flozano.statsd.values.GaugeValue;
+import com.flozano.statsd.values.MetricValue;
+import com.flozano.statsd.values.TimingValue;
 
 @RunWith(Parameterized.class)
 public class MetricValueTest {

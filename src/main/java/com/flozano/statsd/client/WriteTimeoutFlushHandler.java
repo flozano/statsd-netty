@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.netty;
+package com.flozano.statsd.client;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 class WriteTimeoutFlushHandler extends ChannelDuplexHandler {
 
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(WriteTimeoutFlushHandler.class);
+			.getLogger(StatsDClient.class);
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)

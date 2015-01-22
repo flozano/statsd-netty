@@ -1,4 +1,4 @@
-package com.flozano.statsd.client.mock;
+package com.flozano.statsd.test.mockserver;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

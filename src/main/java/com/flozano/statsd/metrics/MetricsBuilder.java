@@ -6,30 +6,46 @@ import java.util.function.UnaryOperator;
 import com.flozano.statsd.client.ClientBuilder;
 import com.flozano.statsd.client.StatsDClient;
 
-public final class MetricsBuilder {
+/**
+ * Builder for Metrics
+ *
+ * @author flozano
+ *
+ */
+public interface MetricsBuilder {
 
-	private Clock clock;
-
-	private UnaryOperator<ClientBuilder> clientBuilderConfigurer;
-
-	public MetricsBuilder withClient(
-			UnaryOperator<ClientBuilder> clientBuilderConfigurer) {
-		this.clientBuilderConfigurer = clientBuilderConfigurer;
-		return this;
+	/**
+	 * Creates a new StatsD client builder
+	 *
+	 */
+	static MetricsBuilder create() {
+		return new MetricsBuilderImpl();
 	}
 
-	public MetricsBuilder withClock(Clock clock) {
-		this.clock = clock;
-		return this;
-	}
+	/**
+	 * Set the metrics to use a specific client
+	 */
+	MetricsBuilder withClient(StatsDClient client);
 
-	private StatsDClient buildClient() {
-		return clientBuilderConfigurer.apply(new ClientBuilder()).buildClient();
-	}
+	/**
+	 * Set the metrics to use a newly configured client
+	 *
+	 * @param clientBuilderConfigurer
+	 *            The configurator for the newly configured client
+	 */
+	MetricsBuilder withClient(
+			UnaryOperator<ClientBuilder> clientBuilderConfigurer);
 
-	public Metrics buildMetrics() {
-		return new Metrics(buildClient(), clock == null ? Clock.systemUTC()
-				: clock);
-	}
+	/**
+	 * Set the metrics to use a specific clock instead of the system UTC-based
+	 * one.
+	 *
+	 */
+	MetricsBuilder withClock(Clock clock);
+
+	/**
+	 * @return a newly configured Metrics instance
+	 */
+	Metrics build();
 
 }

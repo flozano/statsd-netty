@@ -1,4 +1,4 @@
-package com.flozano.statsd.metrics.values;
+package com.flozano.statsd.values;
 
 import static java.util.Objects.requireNonNull;
 
@@ -69,18 +69,6 @@ public abstract class MetricValue {
 			parts.accept("|@");
 			parts.accept(String.format("%1.2f", sampleRate));
 		}
-	}
-
-	public static String name(String name, String... moreNames) {
-		final StringBuilder sb = new StringBuilder(requireNonNull(name));
-		if (moreNames != null && moreNames.length > 0) {
-			for (String additional : moreNames) {
-				if (additional != null) {
-					sb.append('.').append(additional);
-				}
-			}
-		}
-		return sb.toString();
 	}
 
 	public abstract MetricValue withRate(double rate);
