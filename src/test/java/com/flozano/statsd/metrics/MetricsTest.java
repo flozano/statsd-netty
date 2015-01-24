@@ -34,8 +34,8 @@ public class MetricsTest {
 	@Before
 	public void setUp() {
 		MockitoAnnotations.initMocks(this);
-		metrics = MetricsBuilder.create().withClient(client).withClock(clock)
-				.build();
+		metrics = MetricsBuilder.create().withClient(client).withClock(null)
+				.withPrefix("pr3fix").build();
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class MetricsTest {
 				.forClass(GaugeValue.class);
 		metrics.gauge("gauge").value(1234l);
 		verify(client, times(1)).send(argument.capture());
-		assertEquals("gauge", argument.getValue().getName());
+		assertEquals("pr3fix.gauge", argument.getValue().getName());
 		assertEquals(1234l, argument.getValue().getValue());
 		assertFalse(argument.getValue().isDelta());
 	}
@@ -55,7 +55,7 @@ public class MetricsTest {
 				.forClass(GaugeValue.class);
 		metrics.gauge("gauge").delta(1234l);
 		verify(client, times(1)).send(argument.capture());
-		assertEquals("gauge", argument.getValue().getName());
+		assertEquals("pr3fix.gauge", argument.getValue().getName());
 		assertEquals(1234l, argument.getValue().getValue());
 		assertTrue(argument.getValue().isDelta());
 	}
@@ -66,7 +66,7 @@ public class MetricsTest {
 				.forClass(CountValue.class);
 		metrics.counter("counter").count(123l);
 		verify(client, times(1)).send(argument.capture());
-		assertEquals("counter", argument.getValue().getName());
+		assertEquals("pr3fix.counter", argument.getValue().getName());
 		assertEquals(123l, argument.getValue().getValue());
 	}
 
@@ -80,7 +80,7 @@ public class MetricsTest {
 			Thread.sleep(waiting);
 		}
 		verify(client, times(1)).send(argument.capture());
-		assertEquals("timer", argument.getValue().getName());
+		assertEquals("pr3fix.timer", argument.getValue().getName());
 		assertThat(
 				argument.getValue().getValue(),
 				allOf(greaterThanOrEqualTo(waiting - margin),

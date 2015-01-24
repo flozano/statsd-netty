@@ -44,6 +44,12 @@ public interface MetricsBuilder {
 	MetricsBuilder withClock(Clock clock);
 
 	/**
+	 * Enforce the metrics to be prefixed by the specified String.
+	 *
+	 */
+	MetricsBuilder withPrefix(String prefix);
+
+	/**
 	 * @return a newly configured Metrics instance
 	 */
 	Metrics build();
