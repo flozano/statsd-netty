@@ -61,10 +61,11 @@ class MetricArrayToBytesEncoder extends MessageToMessageEncoder<MetricValue[]> {
 			if (currentBytes >= maxBytesPerPacket) {
 				currentBytes = 0;
 				out.add(buf);
+				// TODO avoid "last-message allocation"
 				buf = ctx.alloc().buffer();
 			} else if (currentBytes > 0) {
 				buf.writeBytes(SEPARATOR);
-				currentBytes++;
+				currentBytes += SEPARATOR.length;
 			} else if (currentBytes == 0) {
 				buf = ctx.alloc().buffer();
 			} else {
