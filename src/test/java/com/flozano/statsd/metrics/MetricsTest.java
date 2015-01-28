@@ -22,6 +22,7 @@ import com.flozano.statsd.client.StatsDClient;
 import com.flozano.statsd.metrics.Timer.TimeKeeping;
 import com.flozano.statsd.values.CountValue;
 import com.flozano.statsd.values.GaugeValue;
+import com.flozano.statsd.values.HistogramValue;
 import com.flozano.statsd.values.TimingValue;
 
 public class MetricsTest {
@@ -36,6 +37,33 @@ public class MetricsTest {
 		MockitoAnnotations.initMocks(this);
 		metrics = MetricsBuilder.create().withClient(client).withClock(null)
 				.withPrefix("pr3fix").build();
+	}
+
+	@Test
+	public void measureValueAsTime() {
+		ArgumentCaptor<TimingValue> argument = ArgumentCaptor
+				.forClass(TimingValue.class);
+
+		MetricsBuilder.create().withClient(client).withClock(null)
+				.withMeasureAsTime().build().measure("measure").value(54321);
+
+		verify(client, times(1)).send(argument.capture());
+		assertEquals("measure", argument.getValue().getName());
+		assertEquals(54321, argument.getValue().getValue());
+	}
+
+	@Test
+	public void measureValueAsHistogram() {
+		ArgumentCaptor<HistogramValue> argument = ArgumentCaptor
+				.forClass(HistogramValue.class);
+
+		MetricsBuilder.create().withClient(client).withClock(null)
+				.withMeasureAsHistogram().build().measure("measure")
+				.value(54321);
+
+		verify(client, times(1)).send(argument.capture());
+		assertEquals("measure", argument.getValue().getName());
+		assertEquals(54321, argument.getValue().getValue());
 	}
 
 	@Test
@@ -97,5 +125,15 @@ public class MetricsTest {
 				allOf(greaterThanOrEqualTo(waiting - margin),
 						lessThanOrEqualTo(waiting + margin)));
 
+	}
+
+	@Test
+	public void timerValue() {
+		ArgumentCaptor<TimingValue> argument = ArgumentCaptor
+				.forClass(TimingValue.class);
+		metrics.timer("timer").time(123l);
+		verify(client, times(1)).send(argument.capture());
+		assertEquals("pr3fix.timer", argument.getValue().getName());
+		assertEquals(123l, argument.getValue().getValue());
 	}
 }

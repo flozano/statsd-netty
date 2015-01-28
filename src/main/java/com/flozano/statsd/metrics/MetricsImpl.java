@@ -153,7 +153,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public void value(long value) {
-			client.send(new HistogramValue(name, value));
+			client.send(new TimingValue(name, value));
 		}
 
 	}
