@@ -23,7 +23,7 @@ final class PrefixedMetrics implements Metrics {
 		if (partz[0] == null) {
 			throw new IllegalArgumentException();
 		}
-		return prefix + inner.metricName(partz);
+		return inner.metricName(prefix, inner.metricName(partz));
 	}
 
 	@Override
