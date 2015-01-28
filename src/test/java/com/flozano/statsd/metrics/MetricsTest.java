@@ -50,6 +50,17 @@ public class MetricsTest {
 	}
 
 	@Test
+	public void gaugeValueComplexName() {
+		ArgumentCaptor<GaugeValue> argument = ArgumentCaptor
+				.forClass(GaugeValue.class);
+		metrics.gauge("gauge", "more", "complex").value(1234l);
+		verify(client, times(1)).send(argument.capture());
+		assertEquals("pr3fix.gauge.more.complex", argument.getValue().getName());
+		assertEquals(1234l, argument.getValue().getValue());
+		assertFalse(argument.getValue().isDelta());
+	}
+
+	@Test
 	public void gaugeDelta() {
 		ArgumentCaptor<GaugeValue> argument = ArgumentCaptor
 				.forClass(GaugeValue.class);

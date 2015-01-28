@@ -23,6 +23,9 @@ final class PrefixedMetrics implements Metrics {
 		if (partz[0] == null) {
 			throw new IllegalArgumentException();
 		}
+		if(partz.length==1) {
+			return inner.metricName(prefix, partz[0]);
+		}
 		return inner.metricName(prefix, inner.metricName(partz));
 	}
 
