@@ -167,6 +167,33 @@ public class MetricsTest {
 	}
 
 	@Test
+	public void multipleTimer() throws InterruptedException {
+		long waiting = 1000;
+		long margin = 100;
+		ArgumentCaptor<TimingValue> argument = ArgumentCaptor
+				.forClass(TimingValue.class);
+		try (TimeKeeping o = metrics.multi(metrics.timer("timer"),
+				metrics.timer("timer2")).time()) {
+			Thread.sleep(waiting);
+		}
+		verify(client, times(2)).send(argument.capture());
+		assertEquals("pr3fix.timer", argument.getAllValues().get(0).getName());
+		assertEquals("pr3fix.timer2", argument.getAllValues().get(1).getName());
+
+		assertThat(
+				argument.getAllValues().get(0).getValue(),
+				allOf(greaterThanOrEqualTo(waiting - margin),
+						lessThanOrEqualTo(waiting + margin)));
+		assertThat(
+				argument.getAllValues().get(1).getValue(),
+				allOf(greaterThanOrEqualTo(waiting - margin),
+						lessThanOrEqualTo(waiting + margin)));
+		assertEquals(argument.getAllValues().get(0).getValue(), argument
+				.getAllValues().get(1).getValue());
+
+	}
+
+	@Test
 	public void timerValue() {
 		ArgumentCaptor<TimingValue> argument = ArgumentCaptor
 				.forClass(TimingValue.class);
