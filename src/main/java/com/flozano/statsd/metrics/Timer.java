@@ -1,5 +1,7 @@
 package com.flozano.statsd.metrics;
 
+import java.util.concurrent.TimeUnit;
+
 public interface Timer extends Metric {
 
 	/**
@@ -10,9 +12,16 @@ public interface Timer extends Metric {
 	TimeKeeping time();
 
 	/**
-	 * Report a discrete time value.
+	 * Report a discrete time value in milliseconds.
 	 */
 	void time(long value);
+
+	/**
+	 * Report a discrete time value in specified units
+	 */
+	default void time(long value, TimeUnit unit) {
+		time(unit.toMillis(value));
+	}
 
 	public interface TimeKeeping extends AutoCloseable {
 

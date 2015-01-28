@@ -52,4 +52,6 @@ public interface Metrics extends AutoCloseable {
 	@Override
 	public void close();
 
+	Timer multi(com.flozano.statsd.metrics.Timer... timers);
+
 }

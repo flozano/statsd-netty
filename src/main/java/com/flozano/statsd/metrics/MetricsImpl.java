@@ -34,6 +34,11 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	}
 
 	@Override
+	public Timer multi(Timer... timers) {
+		return new MultipleTimerImpl(timers);
+	}
+
+	@Override
 	public Measure measure(CharSequence... name) {
 		if (measureAsTime) {
 			return new TimeMeasureImpl(metricName(name));
@@ -99,10 +104,66 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 		}
 
 		@Override
-		public void supply(Supplier<Long> supplier, long period, TimeUnit unit) {
-			reporter.addGauge(this, supplier, period, unit);
+		public void supply(Supplier<Long> supplier) {
+			reporter.addGauge(this, supplier);
 		}
 
+	}
+
+	private class MultipleTimerImpl implements Timer {
+		private final Timer[] timers;
+		private String name = null;
+
+		private MultipleTimerImpl(Timer[] timers) {
+			this.timers = requireNonNull(timers);
+			if (timers.length < 1) {
+				throw new IllegalArgumentException();
+			}
+			if (timers[0] == null) {
+				throw new IllegalArgumentException();
+			}
+		}
+
+		@Override
+		public synchronized String getName() {
+			if (name == null) {
+				StringBuilder sb = new StringBuilder(timers[0].getName());
+				for (int i = 1; i < timers.length; i++) {
+					sb.append(timers[i].getName());
+				}
+				name = sb.toString();
+			}
+			return name;
+		}
+
+		@Override
+		public TimeKeeping time() {
+			return new MultipleTimeKeepingImpl();
+		}
+
+		@Override
+		public void time(long value) {
+			for (Timer t : timers) {
+				t.time(value);
+			}
+		}
+
+		private class MultipleTimeKeepingImpl implements TimeKeeping {
+
+			private long startTime;
+
+			private MultipleTimeKeepingImpl() {
+				startTime = clock.millis();
+			}
+
+			@Override
+			public void close() {
+				long elapsed = clock.millis() - startTime;
+				for (Timer t : MultipleTimerImpl.this.timers) {
+					t.time(elapsed);
+				}
+			}
+		}
 	}
 
 	private class TimerImpl implements Timer {
@@ -193,14 +254,13 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 		}
 
 		@Override
-		public void addGauge(Gauge gauge, Supplier<Long> producer, long period,
-				TimeUnit unit) {
+		public void addGauge(Gauge gauge, Supplier<Long> producer) {
 			executor.scheduleAtFixedRate(() -> {
 				Long value = producer.get();
 				if (value != null) {
 					gauge.value(value);
 				}
-			}, 0, period, unit);
+			}, 0, 1, TimeUnit.SECONDS); // TODO make configurable
 		}
 
 		@Override
@@ -214,4 +274,5 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	public Metrics batch() {
 		return new MetricsImpl(client.batch(), clock, measureAsTime);
 	}
+
 }

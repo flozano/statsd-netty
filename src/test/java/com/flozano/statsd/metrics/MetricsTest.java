@@ -92,8 +92,8 @@ public class MetricsTest {
 
 	@Test
 	public void suppliedGaugeWithoutValues() throws InterruptedException {
-		metrics.gauge("gauge").supply(() -> null, 50, TimeUnit.MILLISECONDS);
-		Thread.sleep(1000);
+		metrics.gauge("gauge").supply(() -> null);
+		Thread.sleep(3100);
 		verifyNoMoreInteractions(client);
 	}
 
@@ -102,10 +102,8 @@ public class MetricsTest {
 		ArgumentCaptor<GaugeValue> argument = ArgumentCaptor
 				.forClass(GaugeValue.class);
 		Queue<Long> values = new LinkedList<Long>(Arrays.asList(10l, 20l, 30l));
-		metrics.gauge("gauge").supply(() -> values.poll(), 100,
-				TimeUnit.MILLISECONDS);
-		await().atMost(500, TimeUnit.MILLISECONDS)
-				.until(() -> values.isEmpty());
+		metrics.gauge("gauge").supply(() -> values.poll());
+		await().atMost(4, TimeUnit.SECONDS).until(() -> values.isEmpty());
 		verify(client, times(3)).send(argument.capture());
 		List<GaugeValue> captured = argument.getAllValues();
 		for (GaugeValue v : captured) {

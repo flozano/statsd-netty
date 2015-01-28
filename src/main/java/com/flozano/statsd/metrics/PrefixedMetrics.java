@@ -59,4 +59,9 @@ final class PrefixedMetrics implements Metrics {
 		inner.close();
 	}
 
+	@Override
+	public Timer multi(Timer... timers) {
+		return inner.multi(timers);
+	}
+
 }
