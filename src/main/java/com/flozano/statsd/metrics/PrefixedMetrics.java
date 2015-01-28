@@ -13,7 +13,7 @@ final class PrefixedMetrics implements Metrics {
 		this.prefix = requireNonNull(prefix);
 	}
 
-	private final String[] checkAndAppend(String[] partz) {
+	private final String checkAndAppend(CharSequence[] partz) {
 		if (partz == null) {
 			throw new IllegalArgumentException();
 		}
@@ -23,24 +23,21 @@ final class PrefixedMetrics implements Metrics {
 		if (partz[0] == null) {
 			throw new IllegalArgumentException();
 		}
-		String[] result = new String[partz.length + 1];
-		result[0] = prefix;
-		System.arraycopy(partz, 0, result, 1, partz.length);
-		return result;
+		return prefix + inner.metricName(partz);
 	}
 
 	@Override
-	public Timer timer(String... name) {
+	public Timer timer(CharSequence... name) {
 		return inner.timer(checkAndAppend(name));
 	}
 
 	@Override
-	public Counter counter(String... name) {
+	public Counter counter(CharSequence... name) {
 		return inner.counter(checkAndAppend(name));
 	}
 
 	@Override
-	public Gauge gauge(String... name) {
+	public Gauge gauge(CharSequence... name) {
 		return inner.gauge(checkAndAppend(name));
 	}
 

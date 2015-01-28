@@ -24,17 +24,17 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	}
 
 	@Override
-	public TimerImpl timer(String... name) {
+	public TimerImpl timer(CharSequence... name) {
 		return new TimerImpl(metricName(name));
 	}
 
 	@Override
-	public CounterImpl counter(String... name) {
+	public CounterImpl counter(CharSequence... name) {
 		return new CounterImpl(metricName(name));
 	}
 
 	@Override
-	public GaugeImpl gauge(String... name) {
+	public GaugeImpl gauge(CharSequence... name) {
 		return new GaugeImpl(metricName(name));
 	}
 
@@ -122,7 +122,6 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 				long elapsed = clock.millis() - startTime;
 				client.send(new TimingValue(name, elapsed));
 			}
-
 		}
 	}
 

@@ -13,22 +13,22 @@ public interface Metrics extends AutoCloseable {
 	/**
 	 * @return a named timer
 	 */
-	Timer timer(String... name);
+	Timer timer(CharSequence... name);
 
 	/**
 	 * @return a named counter
 	 */
-	Counter counter(String... name);
+	Counter counter(CharSequence... name);
 
 	/**
 	 * @return a named gauge
 	 */
-	Gauge gauge(String... name);
+	Gauge gauge(CharSequence... name);
 
 	/**
 	 * @return a composed metric names
 	 */
-	default String metricName(String... names) {
+	default String metricName(CharSequence... names) {
 		return NameComposer.composeName(names);
 	}
 
