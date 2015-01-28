@@ -27,7 +27,7 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 		this.measureAsTime = true;
 		return this;
 	}
-	
+
 	@Override
 	public MetricsBuilder withMeasureAsHistogram() {
 		this.measureAsTime = false;
@@ -62,11 +62,12 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 
 	@Override
 	public Metrics build() {
-		Metrics m = new MetricsImpl(client.orElseGet(() -> ClientBuilder
-				.create().build()), clock.orElse(DEFAULT_CLOCK), measureAsTime);
+		StatsDClient statsdClient = client.orElseGet(() -> ClientBuilder
+				.create().build());
+		Metrics m = new MetricsImpl(statsdClient, clock.orElse(DEFAULT_CLOCK),
+				measureAsTime);
 		return prefix.map(
 				(Function<String, Metrics>) (prefix) -> new PrefixedMetrics(m,
 						prefix)).orElse(m);
 	}
-
 }

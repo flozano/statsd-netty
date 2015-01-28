@@ -3,6 +3,10 @@ package com.flozano.statsd.metrics;
 import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import com.flozano.statsd.client.StatsDClient;
 import com.flozano.statsd.values.CountValue;
@@ -15,11 +19,13 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private final StatsDClient client;
 	private final Clock clock;
 	private final boolean measureAsTime;
+	private final BackgroundReporter reporter;
 
-	public MetricsImpl(StatsDClient client, Clock clock, boolean measureAsTime) {
+	MetricsImpl(StatsDClient client, Clock clock, boolean measureAsTime) {
 		this.client = requireNonNull(client);
 		this.clock = requireNonNull(clock);
 		this.measureAsTime = measureAsTime;
+		this.reporter = new SimpleGaugeReporter();
 	}
 
 	@Override
@@ -67,11 +73,6 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 		public void count(long value) {
 			client.send(new CountValue(name, value));
 		}
-
-		@Override
-		public void hit() {
-			count(1l);
-		}
 	}
 
 	private class GaugeImpl implements Gauge {
@@ -95,6 +96,11 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 		@Override
 		public void delta(long value) {
 			client.send(new GaugeValue(name, value, true));
+		}
+
+		@Override
+		public void supply(Supplier<Long> supplier, long period, TimeUnit unit) {
+			reporter.addGauge(this, supplier, period, unit);
 		}
 
 	}
@@ -178,9 +184,34 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 	}
 
+	private class SimpleGaugeReporter implements BackgroundReporter {
+
+		private final ScheduledExecutorService executor;
+
+		SimpleGaugeReporter() {
+			this.executor = Executors.newSingleThreadScheduledExecutor();
+		}
+
+		@Override
+		public void addGauge(Gauge gauge, Supplier<Long> producer, long period,
+				TimeUnit unit) {
+			executor.scheduleAtFixedRate(() -> {
+				Long value = producer.get();
+				if (value != null) {
+					gauge.value(value);
+				}
+			}, 0, period, unit);
+		}
+
+		@Override
+		public void close() {
+			executor.shutdownNow();
+		}
+
+	}
+
 	@Override
 	public Metrics batch() {
 		return new MetricsImpl(client.batch(), clock, measureAsTime);
 	}
-
 }

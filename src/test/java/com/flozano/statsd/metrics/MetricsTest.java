@@ -1,5 +1,6 @@
 package com.flozano.statsd.metrics;
 
+import static com.jayway.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
@@ -9,9 +10,16 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.time.Clock;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +45,11 @@ public class MetricsTest {
 		MockitoAnnotations.initMocks(this);
 		metrics = MetricsBuilder.create().withClient(client).withClock(null)
 				.withPrefix("pr3fix").build();
+	}
+
+	@After
+	public void tearDown() {
+		metrics.close();
 	}
 
 	@Test
@@ -75,6 +88,34 @@ public class MetricsTest {
 		assertEquals("pr3fix.gauge", argument.getValue().getName());
 		assertEquals(1234l, argument.getValue().getValue());
 		assertFalse(argument.getValue().isDelta());
+	}
+
+	@Test
+	public void suppliedGaugeWithoutValues() throws InterruptedException {
+		metrics.gauge("gauge").supply(() -> null, 50, TimeUnit.MILLISECONDS);
+		Thread.sleep(1000);
+		verifyNoMoreInteractions(client);
+	}
+
+	@Test
+	public void suppliedGauge() {
+		ArgumentCaptor<GaugeValue> argument = ArgumentCaptor
+				.forClass(GaugeValue.class);
+		Queue<Long> values = new LinkedList<Long>(Arrays.asList(10l, 20l, 30l));
+		metrics.gauge("gauge").supply(() -> values.poll(), 100,
+				TimeUnit.MILLISECONDS);
+		await().atMost(500, TimeUnit.MILLISECONDS)
+				.until(() -> values.isEmpty());
+		verify(client, times(3)).send(argument.capture());
+		List<GaugeValue> captured = argument.getAllValues();
+		for (GaugeValue v : captured) {
+			assertEquals("pr3fix.gauge", v.getName());
+			assertFalse(v.isDelta());
+		}
+
+		assertEquals(10l, captured.get(0).getValue());
+		assertEquals(20l, captured.get(1).getValue());
+		assertEquals(30l, captured.get(2).getValue());
 	}
 
 	@Test

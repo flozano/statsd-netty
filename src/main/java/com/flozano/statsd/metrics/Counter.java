@@ -2,8 +2,30 @@ package com.flozano.statsd.metrics;
 
 public interface Counter extends Metric {
 
+	/**
+	 * Add the provided value to this counter
+	 */
 	void count(long value);
 
-	void hit();
+	/**
+	 * Add 1 to this counter
+	 */
+	default void hit() {
+		count(1);
+	}
+
+	/**
+	 * Increment this counter by the provided value
+	 */
+	default void inc(long value) {
+		count(Math.abs(value));
+	}
+
+	/**
+	 * Decrement this counter by the provided value
+	 */
+	default void dec(long value) {
+		count(-1 * Math.abs(value));
+	}
 
 }
