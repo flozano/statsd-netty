@@ -7,25 +7,33 @@ import java.time.Clock;
 import com.flozano.statsd.client.StatsDClient;
 import com.flozano.statsd.values.CountValue;
 import com.flozano.statsd.values.GaugeValue;
+import com.flozano.statsd.values.HistogramValue;
 import com.flozano.statsd.values.TimingValue;
 
 final class MetricsImpl implements AutoCloseable, Metrics {
 
 	private final StatsDClient client;
 	private final Clock clock;
+	private final boolean measureAsTime;
 
-	public MetricsImpl(StatsDClient client) {
-		this(client, Clock.systemUTC());
-	}
-
-	public MetricsImpl(StatsDClient client, Clock clock) {
+	public MetricsImpl(StatsDClient client, Clock clock, boolean measureAsTime) {
 		this.client = requireNonNull(client);
 		this.clock = requireNonNull(clock);
+		this.measureAsTime = measureAsTime;
 	}
 
 	@Override
 	public TimerImpl timer(CharSequence... name) {
 		return new TimerImpl(metricName(name));
+	}
+
+	@Override
+	public Measure measure(CharSequence... name) {
+		if (measureAsTime) {
+			return new TimeMeasureImpl(metricName(name));
+		} else {
+			return new HistogramMeasureImpl(metricName(name));
+		}
 	}
 
 	@Override
@@ -120,14 +128,59 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 			@Override
 			public void close() {
 				long elapsed = clock.millis() - startTime;
-				client.send(new TimingValue(name, elapsed));
+				TimerImpl.this.time(elapsed);
 			}
 		}
+
+		@Override
+		public void time(long value) {
+			client.send(new TimingValue(name, value));
+		}
+	}
+
+	private class TimeMeasureImpl implements Measure {
+
+		private final String name;
+
+		public TimeMeasureImpl(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public void value(long value) {
+			client.send(new HistogramValue(name, value));
+		}
+
+	}
+
+	private class HistogramMeasureImpl implements Measure {
+
+		private final String name;
+
+		public HistogramMeasureImpl(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public void value(long value) {
+			client.send(new HistogramValue(name, value));
+		}
+
 	}
 
 	@Override
 	public Metrics batch() {
-		return new MetricsImpl(client.batch(), clock);
+		return new MetricsImpl(client.batch(), clock, measureAsTime);
 	}
 
 }

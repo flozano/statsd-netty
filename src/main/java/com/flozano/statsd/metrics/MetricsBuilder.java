@@ -50,6 +50,18 @@ public interface MetricsBuilder {
 	MetricsBuilder withPrefix(String prefix);
 
 	/**
+	 * Send measure values as time values. Default behavior and most compatible.
+	 * 
+	 */
+	MetricsBuilder withMeasureAsTime();
+
+	/**
+	 * Send measure values as histogram values. Compatible with datadog.
+	 * 
+	 */
+	MetricsBuilder withMeasureAsHistogram();
+
+	/**
 	 * @return a newly configured Metrics instance
 	 */
 	Metrics build();

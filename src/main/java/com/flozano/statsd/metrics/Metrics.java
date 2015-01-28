@@ -26,6 +26,13 @@ public interface Metrics extends AutoCloseable {
 	Gauge gauge(CharSequence... name);
 
 	/**
+	 * 
+	 * @return a named measure.
+	 * 
+	 */
+	Measure measure(CharSequence... name);
+
+	/**
 	 * @return a composed metric names
 	 */
 	default String metricName(CharSequence... names) {

@@ -23,7 +23,7 @@ final class PrefixedMetrics implements Metrics {
 		if (partz[0] == null) {
 			throw new IllegalArgumentException();
 		}
-		if(partz.length==1) {
+		if (partz.length == 1) {
 			return inner.metricName(prefix, partz[0]);
 		}
 		return inner.metricName(prefix, inner.metricName(partz));
@@ -42,6 +42,11 @@ final class PrefixedMetrics implements Metrics {
 	@Override
 	public Gauge gauge(CharSequence... name) {
 		return inner.gauge(checkAndAppend(name));
+	}
+
+	@Override
+	public Measure measure(CharSequence... name) {
+		return inner.measure(checkAndAppend(name));
 	}
 
 	@Override
