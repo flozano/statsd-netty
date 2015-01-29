@@ -40,13 +40,22 @@ Example code:
 				batch.gauge("activeSessions").delta(-1);
 			}
 
+			// Schedule a couple of gauges to be reported every 60 seconds
+			metrics.gauge("databaseConnectionPool", "activeConnections")
+					.supply(60, TimeUnit.SECONDS,
+							() -> getConnectionsFromPool());
+
+			metrics.gauge("databaseConnectionPool", "waitingForConnection")
+					.supply(1, TimeUnit.MINUTES,
+							() -> getWaitingForConnection());
+
 			// Measure the time spent inside the try block
 			try (TimeKeeping o = metrics.timer("timeSpentSavingData").time()) {
 				saveData();
 			}
 		}
 ```
-
+(note that you should keep the "Metrics" instance open for the whole lifecycle of your application).
 
 
 Copyright 2014 Francisco A. Lozano López
