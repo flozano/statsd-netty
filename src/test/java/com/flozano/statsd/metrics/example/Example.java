@@ -1,6 +1,7 @@
 package com.flozano.statsd.metrics.example;
 
 import java.time.Clock;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -50,11 +51,25 @@ public class Example {
 				batch.gauge("activeSessions").delta(-1);
 			}
 
+			// Schedule a couple of gauges to be reported every 60 seconds
+			metrics.gauge("databaseConnectionPool", "activeConnections")
+					.supply(60, TimeUnit.SECONDS,
+							() -> getConnectionsFromPool());
+
+			metrics.gauge("databaseConnectionPool", "waitingForConnection")
+					.supply(1, TimeUnit.MINUTES,
+							() -> getWaitingForConnection());
+
 			// Measure the time spent inside the try block
 			try (TimeKeeping o = metrics.timer("timeSpentSavingData").time()) {
 				saveData();
 			}
 		}
+	}
+
+	private Long getWaitingForConnection() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private static long getConnectionsFromPool() {

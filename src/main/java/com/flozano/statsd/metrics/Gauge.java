@@ -1,5 +1,6 @@
 package com.flozano.statsd.metrics;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public interface Gauge extends Metric {
@@ -11,7 +12,7 @@ public interface Gauge extends Metric {
 
 	/**
 	 * Report an increment/decrement for this gauge
-	 * 
+	 *
 	 * @param value
 	 */
 	void delta(long value);
@@ -20,5 +21,9 @@ public interface Gauge extends Metric {
 	 * Configure this gauge to gather values periodically from a supplier.
 	 *
 	 */
-	void supply(Supplier<Long> supplier);
+	void supply(long time, TimeUnit unit, Supplier<Long> supplier);
+
+	default void supply(Supplier<Long> supplier) {
+		supply(10, TimeUnit.SECONDS, supplier);
+	}
 }

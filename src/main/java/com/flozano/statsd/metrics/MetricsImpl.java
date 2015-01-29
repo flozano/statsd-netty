@@ -108,8 +108,8 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 		}
 
 		@Override
-		public void supply(Supplier<Long> supplier) {
-			reporter.addGauge(this, supplier);
+		public void supply(long time, TimeUnit unit, Supplier<Long> supplier) {
+			reporter.addGauge(this, supplier, time, unit);
 		}
 
 	}
@@ -258,18 +258,19 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 		}
 
 		@Override
-		public void addGauge(Gauge gauge, Supplier<Long> producer) {
+		public void close() {
+			executor.shutdownNow();
+		}
+
+		@Override
+		public void addGauge(Gauge gauge, Supplier<Long> producer, long time,
+				TimeUnit unit) {
 			executor.scheduleAtFixedRate(() -> {
 				Long value = producer.get();
 				if (value != null) {
 					gauge.value(value);
 				}
-			}, 0, 1, TimeUnit.SECONDS); // TODO make configurable
-		}
-
-		@Override
-		public void close() {
-			executor.shutdownNow();
+			}, 0, time, unit);
 		}
 
 	}
