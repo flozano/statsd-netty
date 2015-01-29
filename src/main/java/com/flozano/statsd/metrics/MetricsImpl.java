@@ -59,7 +59,11 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 	@Override
 	public void close() {
-		client.close();
+		try {
+			reporter.close();
+		} finally {
+			client.close();
+		}
 	}
 
 	private class CounterImpl implements Counter {
