@@ -14,7 +14,7 @@ Maven dependency:
 		<dependency>
 			<groupId>com.flozano.statsd-netty</groupId>
 			<artifactId>statsd-netty</artifactId>
-			<version>0.1.1</version>
+			<version>0.1.4</version>
 		</dependency>
 ```
 
