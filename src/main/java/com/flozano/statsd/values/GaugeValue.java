@@ -10,8 +10,7 @@ public final class GaugeValue extends MetricValue {
 		super(name, value, sample, SUFFIX);
 		this.delta = delta;
 		if (!delta && value < 0) {
-			throw new IllegalArgumentException(
-					"A negative number is not a valid absolute gauge value");
+			throw new IllegalArgumentException("A negative number is not a valid absolute gauge value");
 		}
 	}
 
@@ -39,6 +38,11 @@ public final class GaugeValue extends MetricValue {
 	@Override
 	public MetricValue withRate(double rate) {
 		return new GaugeValue(getName(), getValue(), rate, delta);
+	}
+
+	@Override
+	public MetricValue withName(String name) {
+		return new GaugeValue(name, getValue(), getSampleRate(), delta);
 	}
 
 }

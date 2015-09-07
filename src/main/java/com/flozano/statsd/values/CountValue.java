@@ -13,8 +13,13 @@ public final class CountValue extends MetricValue {
 	}
 
 	@Override
-	public MetricValue withRate(double rate) {
+	public CountValue withRate(double rate) {
 		return new CountValue(getName(), getValue(), rate);
+	}
+	
+	@Override
+	public CountValue withName(String name) {
+		return new CountValue(name, getValue(), getSampleRate());
 	}
 
 }

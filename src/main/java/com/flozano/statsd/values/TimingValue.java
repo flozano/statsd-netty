@@ -17,4 +17,9 @@ public final class TimingValue extends MetricValue {
 		return new TimingValue(getName(), getValue(), rate);
 	}
 
+	@Override
+	public MetricValue withName(String name) {
+		return new TimingValue(name, getValue(), getSampleRate());
+	}
+
 }

@@ -23,4 +23,9 @@ public class HistogramValue extends MetricValue {
 		return new HistogramValue(getName(), getValue(), rate);
 	}
 
+	@Override
+	public MetricValue withName(String name) {
+		return new HistogramValue(name, getValue(), getSampleRate());
+	}
+
 }

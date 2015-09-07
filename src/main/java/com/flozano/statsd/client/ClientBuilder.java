@@ -2,6 +2,10 @@ package com.flozano.statsd.client;
 
 import io.netty.channel.EventLoopGroup;
 
+import java.util.function.UnaryOperator;
+
+import com.flozano.statsd.values.MetricValue;
+
 /**
  * Builder for StatsDClient
  *
@@ -54,6 +58,15 @@ public interface ClientBuilder {
 	 *
 	 */
 	ClientBuilder withEventLoopGroup(EventLoopGroup eventLoopGroup);
+
+	/**
+	 * Optional preprocessor to perform additional processing over the metrics
+	 * before they're sent to the wire.
+	 * 
+	 * @param preprocessor
+	 * @return
+	 */
+	ClientBuilder withPreprocessor(UnaryOperator<MetricValue[]> preprocessor);
 
 	/**
 	 * @return a newly configured StatsD client.

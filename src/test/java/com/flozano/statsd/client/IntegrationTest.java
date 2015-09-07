@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.UnaryOperator;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,16 +46,14 @@ public class IntegrationTest {
 	public static Collection<Object[]> params() {
 		List<Object[]> params = new LinkedList<>();
 		for (int numberOfItems : Arrays.asList(10, 100, 500)) {
-			for (Class<? extends UDPServer> serverClass : Arrays
-					.<Class<? extends UDPServer>> asList(
-					/* ThreadedUDPServer.class, *//* NettyUDPServer.Nio.class */
-					NettyUDPServer.Oio.class)) {
+			for (Class<? extends UDPServer> serverClass : Arrays.<Class<? extends UDPServer>> asList(
+			/* ThreadedUDPServer.class, *//* NettyUDPServer.Nio.class */
+			NettyUDPServer.Oio.class)) {
 				for (int recvbufValue : Arrays.asList(/* 200_000, 500_000, */
-						1_000_000)) {
+				1_000_000)) {
 					for (double flushProbability : Arrays.asList(0.0, /* 0.2, */
 							0.8)) {
-						params.add(new Object[] { numberOfItems, serverClass,
-								recvbufValue, flushProbability });
+						params.add(new Object[] { numberOfItems, serverClass, recvbufValue, flushProbability });
 					}
 				}
 			}
@@ -73,8 +72,7 @@ public class IntegrationTest {
 
 	private final double flushProbability;
 
-	public IntegrationTest(int numberOfItems,
-			Class<? extends UDPServer> serverClass, int recvbufValue,
+	public IntegrationTest(int numberOfItems, Class<? extends UDPServer> serverClass, int recvbufValue,
 			double flushProbability) {
 		this.numberOfItems = numberOfItems;
 		this.serverClass = serverClass;
@@ -98,15 +96,12 @@ public class IntegrationTest {
 	public void testManyCalls() throws Exception {
 		try (UDPServer server = newServer()) {
 			try (NettyStatsDClientImpl c = newClient()) {
-				List<CompletableFuture<Void>> css = new ArrayList<>(
-						numberOfItems);
+				List<CompletableFuture<Void>> css = new ArrayList<>(numberOfItems);
 				for (int i = 0; i < numberOfItems; i++) {
 					css.add(c.send(new CountValue("example", 1)));
 				}
 
-				CompletableFuture.allOf(
-						css.toArray(new CompletableFuture[numberOfItems])).get(
-						10, TimeUnit.SECONDS);
+				CompletableFuture.allOf(css.toArray(new CompletableFuture[numberOfItems])).get(10, TimeUnit.SECONDS);
 				LOGGER.info("All items sent: {}", numberOfItems);
 
 				assertServer(server, "example:1|c");
@@ -132,8 +127,7 @@ public class IntegrationTest {
 	}
 
 	private void assertServer(UDPServer server, String expectedValue) {
-		assertTrue("All items were not received",
-				server.waitForAllItemsReceived());
+		assertTrue("All items were not received", server.waitForAllItemsReceived());
 		LOGGER.info("All items received: {}", numberOfItems);
 
 		assertThat(server.getItemsSnapshot(), everyItem(equalTo(expectedValue)));
@@ -141,15 +135,14 @@ public class IntegrationTest {
 	}
 
 	private NettyStatsDClientImpl newClient() {
-		return new NettyStatsDClientImpl("127.0.0.1", port, flushProbability);
+		return new NettyStatsDClientImpl(UnaryOperator.identity(), "127.0.0.1", port, flushProbability);
 	}
 
 	private UDPServer newServer() {
 		try {
-			return serverClass.getConstructor(int.class, int.class, int.class)
-					.newInstance(port, numberOfItems, recvbufValue);
-		} catch (InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException
+			return serverClass.getConstructor(int.class, int.class, int.class).newInstance(port, numberOfItems,
+					recvbufValue);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}

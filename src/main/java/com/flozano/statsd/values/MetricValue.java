@@ -72,4 +72,6 @@ public abstract class MetricValue {
 	}
 
 	public abstract MetricValue withRate(double rate);
+
+	public abstract MetricValue withName(String string);
 }

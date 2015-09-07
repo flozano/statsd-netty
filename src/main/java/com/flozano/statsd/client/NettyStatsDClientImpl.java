@@ -14,6 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.UnaryOperator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,7 @@ import com.flozano.statsd.values.MetricValue;
 
 final class NettyStatsDClientImpl implements StatsDClient {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(StatsDClient.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(StatsDClient.class);
 
 	private final Bootstrap bootstrap;
 	private final Channel channel;
@@ -33,10 +33,12 @@ final class NettyStatsDClientImpl implements StatsDClient {
 
 	private final Timer flushTimer;
 
-	private NettyStatsDClientImpl(String host, int port,
-			EventLoopGroup eventLoopGroup, boolean defaultEventLoopGroup,
-			double flushRate) {
+	private final UnaryOperator<MetricValue[]> preprocessor;
+
+	private NettyStatsDClientImpl(UnaryOperator<MetricValue[]> preprocessor, String host, int port,
+			EventLoopGroup eventLoopGroup, boolean defaultEventLoopGroup, double flushRate) {
 		this.eventLoopGroup = requireNonNull(eventLoopGroup);
+		this.preprocessor = requireNonNull(preprocessor);
 		this.defaultEventLoopGroup = defaultEventLoopGroup;
 		bootstrap = new Bootstrap();
 		bootstrap.group(eventLoopGroup);
@@ -48,11 +50,8 @@ final class NettyStatsDClientImpl implements StatsDClient {
 
 			@Override
 			protected void initChannel(Channel ch) throws Exception {
-				ch.pipeline()
-						.addLast("udp",
-								new BytesToUDPEncoder(host, port, flushRate))
-						.addLast("array-encoder",
-								new MetricArrayToBytesEncoder(500))
+				ch.pipeline().addLast("udp", new BytesToUDPEncoder(host, port, flushRate))
+						.addLast("array-encoder", new MetricArrayToBytesEncoder(500))
 						.addLast("encoder", new MetricToBytesEncoder());
 			}
 		});
@@ -72,13 +71,13 @@ final class NettyStatsDClientImpl implements StatsDClient {
 		}, 1000, 1000);
 	}
 
-	public NettyStatsDClientImpl(String host, int port,
-			EventLoopGroup eventLoopGroup, double flushRate) {
-		this(host, port, eventLoopGroup, false, flushRate);
+	NettyStatsDClientImpl(UnaryOperator<MetricValue[]> processor, String host, int port, EventLoopGroup eventLoopGroup,
+			double flushRate) {
+		this(processor, host, port, eventLoopGroup, false, flushRate);
 	}
 
-	public NettyStatsDClientImpl(String host, int port, double flushRate) {
-		this(host, port, new NioEventLoopGroup(), true, flushRate);
+	NettyStatsDClientImpl(UnaryOperator<MetricValue[]> processor, String host, int port, double flushRate) {
+		this(processor, host, port, new NioEventLoopGroup(), true, flushRate);
 	}
 
 	@Override
@@ -86,22 +85,19 @@ final class NettyStatsDClientImpl implements StatsDClient {
 		validatemetricValues(metricValues);
 
 		CompletableFuture<Void> cf = new CompletableFuture<>();
-		channel.write(metricValues).addListener(
-				f -> {
-					LOGGER.trace("Message sent (future={}, metricValues={})",
-							f, metricValues);
-					try {
-						f.get();
-						if (f.isSuccess()) {
-							cf.complete(null);
-						} else {
-							cf.completeExceptionally(new RuntimeException(
-									"Future didn't complete successfully"));
-						}
-					} catch (ExecutionException e) {
-						cf.completeExceptionally(e.getCause());
-					}
-				});
+		channel.write(metricValues).addListener(f -> {
+			LOGGER.trace("Message sent (future={}, metricValues={})", f, metricValues);
+			try {
+				f.get();
+				if (f.isSuccess()) {
+					cf.complete(null);
+				} else {
+					cf.completeExceptionally(new RuntimeException("Future didn't complete successfully"));
+				}
+			} catch (ExecutionException e) {
+				cf.completeExceptionally(e.getCause());
+			}
+		});
 		return cf;
 	}
 
@@ -123,8 +119,7 @@ final class NettyStatsDClientImpl implements StatsDClient {
 	private static void validatemetricValues(MetricValue[] metricValues) {
 		requireNonNull(metricValues);
 		if (metricValues.length < 1) {
-			throw new IllegalArgumentException(
-					"At least one metric value must be provided");
+			throw new IllegalArgumentException("At least one metric value must be provided");
 		}
 	}
 
