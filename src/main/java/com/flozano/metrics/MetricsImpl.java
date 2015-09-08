@@ -9,22 +9,22 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import com.flozano.statsd.client.StatsDClient;
-import com.flozano.statsd.values.CountValue;
-import com.flozano.statsd.values.GaugeValue;
-import com.flozano.statsd.values.HistogramValue;
-import com.flozano.statsd.values.TimingValue;
+import com.flozano.metrics.client.CountValue;
+import com.flozano.metrics.client.GaugeValue;
+import com.flozano.metrics.client.HistogramValue;
+import com.flozano.metrics.client.MetricsClient;
+import com.flozano.metrics.client.TimingValue;
 
 final class MetricsImpl implements AutoCloseable, Metrics {
 
-	private final StatsDClient client;
+	private final MetricsClient client;
 	private final Clock clock;
 	private final boolean measureAsTime;
 	private final BackgroundReporter reporter;
 
 	private Tags tags;
 
-	MetricsImpl(StatsDClient client, Clock clock, boolean measureAsTime, Optional<Tags> tags) {
+	MetricsImpl(MetricsClient client, Clock clock, boolean measureAsTime, Optional<Tags> tags) {
 		this.client = requireNonNull(client);
 		this.clock = requireNonNull(clock);
 		this.measureAsTime = measureAsTime;

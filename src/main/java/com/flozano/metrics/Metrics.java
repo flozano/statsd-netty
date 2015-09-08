@@ -1,6 +1,6 @@
 package com.flozano.metrics;
 
-import com.flozano.statsd.util.NameComposer;
+import com.flozano.metrics.client.util.NameComposer;
 
 /**
  * Façade for managing metrics

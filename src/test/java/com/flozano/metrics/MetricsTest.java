@@ -29,16 +29,16 @@ import org.mockito.MockitoAnnotations;
 import com.flozano.metrics.Metrics;
 import com.flozano.metrics.MetricsBuilder;
 import com.flozano.metrics.Timer.TimeKeeping;
-import com.flozano.statsd.client.StatsDClient;
-import com.flozano.statsd.values.CountValue;
-import com.flozano.statsd.values.GaugeValue;
-import com.flozano.statsd.values.HistogramValue;
-import com.flozano.statsd.values.TimingValue;
+import com.flozano.metrics.client.CountValue;
+import com.flozano.metrics.client.GaugeValue;
+import com.flozano.metrics.client.HistogramValue;
+import com.flozano.metrics.client.MetricsClient;
+import com.flozano.metrics.client.TimingValue;
 
 public class MetricsTest {
 
 	@Mock
-	StatsDClient client;
+	MetricsClient client;
 	Clock clock = Clock.systemUTC();
 	Metrics metrics;
 

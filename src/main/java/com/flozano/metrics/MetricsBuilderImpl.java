@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-import com.flozano.statsd.client.ClientBuilder;
-import com.flozano.statsd.client.StatsDClient;
+import com.flozano.metrics.client.MetricsClientBuilder;
+import com.flozano.metrics.client.MetricsClient;
 
 final class MetricsBuilderImpl implements MetricsBuilder {
 
@@ -18,7 +18,7 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 
 	private Optional<String> prefix = Optional.empty();
 
-	private Optional<StatsDClient> client = Optional.empty();
+	private Optional<MetricsClient> client = Optional.empty();
 
 	private boolean measureAsTime = true;
 
@@ -35,13 +35,13 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 	}
 
 	@Override
-	public MetricsBuilder withClient(UnaryOperator<ClientBuilder> clientBuilderConfigurer) {
-		this.client = Optional.of(requireNonNull(clientBuilderConfigurer).apply(ClientBuilder.create()).build());
+	public MetricsBuilder withClient(UnaryOperator<MetricsClientBuilder> clientBuilderConfigurer) {
+		this.client = Optional.of(requireNonNull(clientBuilderConfigurer).apply(MetricsClientBuilder.statsd()).build());
 		return this;
 	}
 
 	@Override
-	public MetricsBuilder withClient(StatsDClient client) {
+	public MetricsBuilder withClient(MetricsClient client) {
 		this.client = Optional.of(client);
 		return this;
 	}
@@ -60,7 +60,7 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 
 	@Override
 	public Metrics build() {
-		StatsDClient statsdClient = client.orElseGet(() -> ClientBuilder.create().build());
+		MetricsClient statsdClient = client.orElseGet(() -> MetricsClientBuilder.statsd().build());
 		Metrics m = new MetricsImpl(statsdClient, clock.orElse(DEFAULT_CLOCK), measureAsTime, Optional.empty());
 		return prefix.map((Function<String, Metrics>) (prefix) -> new PrefixedMetrics(m, prefix)).orElse(m);
 	}

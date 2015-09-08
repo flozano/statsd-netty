@@ -7,10 +7,10 @@ import org.mockito.Mockito;
 
 import com.flozano.metrics.Metrics;
 import com.flozano.metrics.MetricsBuilder;
-import com.flozano.statsd.client.StatsDClient;
+import com.flozano.metrics.client.MetricsClient;
 
 public class MetricsBuilderTest {
-	StatsDClient client = Mockito.mock(StatsDClient.class);
+	MetricsClient client = Mockito.mock(MetricsClient.class);
 
 	@Test
 	public void testSeveralCombinations() {
