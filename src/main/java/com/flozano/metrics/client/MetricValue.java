@@ -2,8 +2,6 @@ package com.flozano.metrics.client;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.function.Consumer;
-
 public abstract class MetricValue {
 	private final long value;
 	private final String name;
@@ -17,7 +15,7 @@ public abstract class MetricValue {
 		this.suffix = suffix;
 	}
 
-	protected boolean isSignRequiredInValue() {
+	public boolean isSignRequiredInValue() {
 		return false;
 	}
 
@@ -48,27 +46,6 @@ public abstract class MetricValue {
 		return suffix;
 	}
 
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder();
-		toStringParts((part) -> sb.append(part));
-		return sb.toString();
-	}
-
-	public void toStringParts(Consumer<String> parts) {
-		parts.accept(name);
-		parts.accept(":");
-		if (isSignRequiredInValue() && getValue() > 0) {
-			parts.accept("+");
-		}
-		parts.accept(Long.toString(getValue()));
-		parts.accept("|");
-		parts.accept(getSuffix());
-		if (sampleRate != null) {
-			parts.accept("|@");
-			parts.accept(String.format("%1.2f", sampleRate));
-		}
-	}
 
 	public abstract MetricValue withRate(double rate);
 

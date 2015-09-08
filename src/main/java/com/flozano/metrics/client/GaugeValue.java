@@ -31,7 +31,7 @@ public final class GaugeValue extends MetricValue {
 	}
 
 	@Override
-	protected boolean isSignRequiredInValue() {
+	public boolean isSignRequiredInValue() {
 		return isDelta();
 	}
 

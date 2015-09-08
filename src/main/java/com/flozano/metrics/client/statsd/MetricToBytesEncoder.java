@@ -1,6 +1,7 @@
 package com.flozano.metrics.client.statsd;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,19 +19,32 @@ class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(MetricsClient.class);
 
-
 	@Override
 	public boolean acceptOutboundMessage(Object msg) throws Exception {
 		return msg instanceof MetricValue;
 	}
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, MetricValue msg,
-			ByteBuf out) throws Exception {
+	protected void encode(ChannelHandlerContext ctx, MetricValue msg, ByteBuf out) throws Exception {
 		LOGGER.trace("Writing {} ", msg);
-		msg.toStringParts((part) -> out.writeBytes(part
-				.getBytes(StandardCharsets.UTF_8)));
+		toStringParts(msg, (part) -> out.writeBytes(part.getBytes(StandardCharsets.UTF_8)));
 		LOGGER.trace("Wrote {} ", msg);
+	}
+
+	public static void toStringParts(MetricValue msg, Consumer<String> parts) {
+		parts.accept(msg.getName());
+		parts.accept(":");
+		if (msg.isSignRequiredInValue() && msg.getValue() > 0) {
+			parts.accept("+");
+		}
+		parts.accept(Long.toString(msg.getValue()));
+		parts.accept("|");
+		parts.accept(msg.getSuffix());
+		Double r = msg.getSampleRate();
+		if (r != null) {
+			parts.accept("|@");
+			parts.accept(String.format("%1.2f", r));
+		}
 	}
 
 }

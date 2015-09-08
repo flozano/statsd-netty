@@ -1,10 +1,6 @@
 package com.flozano.metrics.client.statsd;
 
 import static java.util.Objects.requireNonNull;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageEncoder;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -15,6 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import com.flozano.metrics.client.MetricValue;
 import com.flozano.metrics.client.MetricsClient;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageEncoder;
 
 @Sharable
 class MetricArrayToBytesEncoder extends MessageToMessageEncoder<MetricValue[]> {
@@ -74,7 +75,7 @@ class MetricArrayToBytesEncoder extends MessageToMessageEncoder<MetricValue[]> {
 			}
 
 			ByteCountingWriter writer = new ByteCountingWriter(buf);
-			m.toStringParts(writer);
+			MetricToBytesEncoder.toStringParts(m, writer);
 			currentBytes += writer.getWrittenBytes();
 		}
 
