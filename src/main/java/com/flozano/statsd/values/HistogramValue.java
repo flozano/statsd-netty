@@ -2,7 +2,7 @@ package com.flozano.statsd.values;
 
 /**
  * Only supported by datadog statsd it seems...
- * 
+ *
  * @author flozano
  *
  */

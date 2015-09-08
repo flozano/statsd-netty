@@ -1,4 +1,4 @@
-package com.flozano.statsd.metrics;
+package com.flozano.metrics;
 
 import com.flozano.statsd.util.NameComposer;
 
@@ -26,9 +26,9 @@ public interface Metrics extends AutoCloseable {
 	Gauge gauge(CharSequence... name);
 
 	/**
-	 * 
+	 *
 	 * @return a named measure.
-	 * 
+	 *
 	 */
 	Measure measure(CharSequence... name);
 
@@ -52,6 +52,8 @@ public interface Metrics extends AutoCloseable {
 	@Override
 	public void close();
 
-	Timer multi(com.flozano.statsd.metrics.Timer... timers);
+	Timer multi(com.flozano.metrics.Timer... timers);
+
+	Metrics tagged(CharSequence name, CharSequence value);
 
 }

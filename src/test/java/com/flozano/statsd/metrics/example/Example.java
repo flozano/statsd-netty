@@ -5,9 +5,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.flozano.statsd.metrics.Metrics;
-import com.flozano.statsd.metrics.MetricsBuilder;
-import com.flozano.statsd.metrics.Timer.TimeKeeping;
+import com.flozano.metrics.Metrics;
+import com.flozano.metrics.MetricsBuilder;
+import com.flozano.metrics.Timer.TimeKeeping;
 
 public class Example {
 

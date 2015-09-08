@@ -82,7 +82,7 @@ final class NettyStatsDClientImpl implements StatsDClient {
 
 	@Override
 	public CompletableFuture<Void> send(MetricValue... metricValues) {
-		validatemetricValues(metricValues);
+		validateMetricValues(metricValues);
 
 		CompletableFuture<Void> cf = new CompletableFuture<>();
 		channel.write(metricValues).addListener(f -> {
@@ -116,7 +116,7 @@ final class NettyStatsDClientImpl implements StatsDClient {
 		}
 	}
 
-	private static void validatemetricValues(MetricValue[] metricValues) {
+	private static void validateMetricValues(MetricValue[] metricValues) {
 		requireNonNull(metricValues);
 		if (metricValues.length < 1) {
 			throw new IllegalArgumentException("At least one metric value must be provided");

@@ -1,4 +1,4 @@
-package com.flozano.statsd.metrics;
+package com.flozano.metrics;
 
 import java.time.Clock;
 import java.util.function.UnaryOperator;

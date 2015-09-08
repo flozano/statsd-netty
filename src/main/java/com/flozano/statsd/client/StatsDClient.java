@@ -1,6 +1,9 @@
 package com.flozano.statsd.client;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.flozano.statsd.values.MetricValue;
 
@@ -20,6 +23,17 @@ public interface StatsDClient extends AutoCloseable {
 	 * @return a future that allows to hook on the operation completion
 	 */
 	CompletableFuture<Void> send(MetricValue... metrics);
+
+	/**
+	 * Send a bunch of metrics to StatsD server
+	 *
+	 * @param map
+	 * @return
+	 */
+	default CompletableFuture<Void> send(Stream<MetricValue> metrics) {
+		List<MetricValue> values = metrics.collect(Collectors.toList());
+		return send(values.toArray(new MetricValue[values.size()]));
+	}
 
 	/**
 	 * Creates a batch version of this client.

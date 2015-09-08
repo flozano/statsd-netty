@@ -1,4 +1,4 @@
-package com.flozano.statsd.metrics;
+package com.flozano.metrics;
 
 public interface Counter extends Metric {
 

@@ -1,4 +1,4 @@
-package com.flozano.statsd.metrics;
+package com.flozano.metrics;
 
 import static java.util.Objects.requireNonNull;
 
@@ -62,6 +62,11 @@ final class PrefixedMetrics implements Metrics {
 	@Override
 	public Timer multi(Timer... timers) {
 		return inner.multi(timers);
+	}
+
+	@Override
+	public Metrics tagged(CharSequence name, CharSequence value) {
+		return new PrefixedMetrics(inner.tagged(name, value), prefix);
 	}
 
 }

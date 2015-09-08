@@ -29,8 +29,7 @@ public class BatchClientTest {
 	@Before
 	public void setUp() {
 		inner = mock(StatsDClient.class);
-		when(inner.send(anyVararg())).thenReturn(
-				CompletableFuture.completedFuture(null));
+		when(inner.send(metricValueVarArg())).thenReturn(CompletableFuture.completedFuture(null));
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -43,8 +42,7 @@ public class BatchClientTest {
 
 	@Test
 	public void testBatch() {
-		List<MetricValue> metrics = Arrays.asList(new GaugeValue("test", 4321),
-				new TimingValue("test2", 321));
+		List<MetricValue> metrics = Arrays.asList(new GaugeValue("test", 4321), new TimingValue("test2", 321));
 		List<CompletableFuture<Void>> cfs = new ArrayList<>();
 
 		CompletableFuture<Void> cf;
@@ -52,14 +50,17 @@ public class BatchClientTest {
 			for (MetricValue m : metrics) {
 				cfs.add(batchClient.send(m));
 			}
-			cf = CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs
-					.size()]));
+			cf = CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
 			assertFalse(cf.isDone());
 			verifyNoMoreInteractions(inner);
 		}
 		await().atMost(5, TimeUnit.SECONDS).until(() -> cf.isDone());
 		assertFalse(cf.isCancelled());
 		assertFalse(cf.isCompletedExceptionally());
-		verify(inner, times(1)).send(anyVararg());
+		verify(inner, times(1)).send(metricValueVarArg());
+	}
+
+	static MetricValue[] metricValueVarArg() {
+		return anyVararg();
 	}
 }

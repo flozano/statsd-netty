@@ -1,8 +1,9 @@
-package com.flozano.statsd.metrics;
+package com.flozano.metrics;
 
 import static java.util.Objects.requireNonNull;
 
 import java.time.Clock;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -21,16 +22,19 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private final boolean measureAsTime;
 	private final BackgroundReporter reporter;
 
-	MetricsImpl(StatsDClient client, Clock clock, boolean measureAsTime) {
+	private Tags tags;
+
+	MetricsImpl(StatsDClient client, Clock clock, boolean measureAsTime, Optional<Tags> tags) {
 		this.client = requireNonNull(client);
 		this.clock = requireNonNull(clock);
 		this.measureAsTime = measureAsTime;
 		this.reporter = new SimpleGaugeReporter();
+		this.tags = tags.orElseGet(() -> new Tags());
 	}
 
 	@Override
 	public TimerImpl timer(CharSequence... name) {
-		return new TimerImpl(metricName(name));
+		return new TimerImpl(metricName(name), tags);
 	}
 
 	@Override
@@ -41,20 +45,20 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	@Override
 	public Measure measure(CharSequence... name) {
 		if (measureAsTime) {
-			return new TimeMeasureImpl(metricName(name));
+			return new TimeMeasureImpl(metricName(name), tags);
 		} else {
-			return new HistogramMeasureImpl(metricName(name));
+			return new HistogramMeasureImpl(metricName(name), tags);
 		}
 	}
 
 	@Override
 	public CounterImpl counter(CharSequence... name) {
-		return new CounterImpl(metricName(name));
+		return new CounterImpl(metricName(name), tags);
 	}
 
 	@Override
 	public GaugeImpl gauge(CharSequence... name) {
-		return new GaugeImpl(metricName(name));
+		return new GaugeImpl(metricName(name), tags);
 	}
 
 	@Override
@@ -69,8 +73,16 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class CounterImpl implements Counter {
 		private final String name;
 
-		private CounterImpl(String name) {
+		private final Tags tags;
+
+		private CounterImpl(String name, Tags tags) {
 			this.name = name;
+			this.tags = tags;
+		}
+
+		@Override
+		public Tags getTags() {
+			return tags;
 		}
 
 		@Override
@@ -87,9 +99,16 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class GaugeImpl implements Gauge {
 
 		private final String name;
+		private final Tags tags;
 
-		private GaugeImpl(String name) {
+		private GaugeImpl(String name, Tags tags) {
 			this.name = name;
+			this.tags = tags;
+		}
+
+		@Override
+		public Tags getTags() {
+			return tags;
 		}
 
 		@Override
@@ -126,6 +145,11 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 			if (timers[0] == null) {
 				throw new IllegalArgumentException();
 			}
+		}
+
+		@Override
+		public Tags getTags() {
+			return new Tags();
 		}
 
 		@Override
@@ -173,9 +197,16 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class TimerImpl implements Timer {
 
 		private final String name;
+		private final Tags tags;
 
-		private TimerImpl(String name) {
-			this.name = requireNonNull(name);
+		private TimerImpl(String name, Tags tags) {
+			this.name = name;
+			this.tags = tags;
+		}
+
+		@Override
+		public Tags getTags() {
+			return tags;
 		}
 
 		@Override
@@ -212,9 +243,16 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class TimeMeasureImpl implements Measure {
 
 		private final String name;
+		private final Tags tags;
 
-		public TimeMeasureImpl(String name) {
+		public TimeMeasureImpl(String name, Tags tags) {
 			this.name = name;
+			this.tags = tags;
+		}
+
+		@Override
+		public Tags getTags() {
+			return tags;
 		}
 
 		@Override
@@ -232,9 +270,16 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class HistogramMeasureImpl implements Measure {
 
 		private final String name;
+		private final Tags tags;
 
-		public HistogramMeasureImpl(String name) {
+		public HistogramMeasureImpl(String name, Tags tags) {
 			this.name = name;
+			this.tags = tags;
+		}
+
+		@Override
+		public Tags getTags() {
+			return tags;
 		}
 
 		@Override
@@ -263,21 +308,25 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 		}
 
 		@Override
-		public void addGauge(Gauge gauge, Supplier<Long> producer, long time,
-				TimeUnit unit) {
+		public void addGauge(Gauge gauge, Supplier<Long> producer, long time, TimeUnit unit) {
 			executor.scheduleAtFixedRate(() -> {
 				Long value = producer.get();
 				if (value != null) {
 					gauge.value(value);
 				}
-			}, 0, time, unit);
+			} , 0, time, unit);
 		}
 
 	}
 
 	@Override
 	public Metrics batch() {
-		return new MetricsImpl(client.batch(), clock, measureAsTime);
+		return new MetricsImpl(client.batch(), clock, measureAsTime, Optional.of(tags));
+	}
+
+	@Override
+	public Metrics tagged(CharSequence name, CharSequence value) {
+		return new MetricsImpl(client, clock, measureAsTime, Optional.of(tags.with(name, value)));
 	}
 
 }

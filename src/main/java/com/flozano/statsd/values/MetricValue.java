@@ -10,7 +10,7 @@ public abstract class MetricValue {
 	private final Double sampleRate;
 	private final String suffix;
 
-	public MetricValue(String name, long value, Double sampleRate, String suffix) {
+	protected MetricValue(String name, long value, Double sampleRate, String suffix) {
 		this.name = requireNonNull(name);
 		this.value = value;
 		this.sampleRate = validateSampleRate(sampleRate);
@@ -26,8 +26,7 @@ public abstract class MetricValue {
 			return null;
 		}
 		if (sampleRate < 0 || sampleRate > 1) {
-			throw new IllegalArgumentException(
-					"sample rate must be between 0 and 1");
+			throw new IllegalArgumentException("sample rate must be between 0 and 1");
 		}
 
 		return sampleRate;

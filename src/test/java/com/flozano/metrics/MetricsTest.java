@@ -1,4 +1,4 @@
-package com.flozano.statsd.metrics;
+package com.flozano.metrics;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.allOf;
@@ -26,8 +26,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.flozano.metrics.Metrics;
+import com.flozano.metrics.MetricsBuilder;
+import com.flozano.metrics.Timer.TimeKeeping;
 import com.flozano.statsd.client.StatsDClient;
-import com.flozano.statsd.metrics.Timer.TimeKeeping;
 import com.flozano.statsd.values.CountValue;
 import com.flozano.statsd.values.GaugeValue;
 import com.flozano.statsd.values.HistogramValue;

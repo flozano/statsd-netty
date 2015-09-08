@@ -1,10 +1,12 @@
-package com.flozano.statsd.metrics;
+package com.flozano.metrics;
 
 import java.time.Clock;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.flozano.metrics.Metrics;
+import com.flozano.metrics.MetricsBuilder;
 import com.flozano.statsd.client.StatsDClient;
 
 public class MetricsBuilderTest {
