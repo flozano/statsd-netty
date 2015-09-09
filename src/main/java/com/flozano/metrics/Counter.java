@@ -16,6 +16,9 @@ public interface Counter extends Metric {
 
 	/**
 	 * Increment this counter by the provided value
+	 *
+	 * @param value
+	 *            the value
 	 */
 	default void inc(long value) {
 		count(Math.abs(value));
@@ -23,6 +26,9 @@ public interface Counter extends Metric {
 
 	/**
 	 * Decrement this counter by the provided value
+	 *
+	 * @param value
+	 *            the value
 	 */
 	default void dec(long value) {
 		count(-1 * Math.abs(value));
