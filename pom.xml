@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.flozano.metrics</groupId>
 	<artifactId>metrics</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<name>metrics</name>
 	<description>A metrics engine with different backends (eg: statsd-netty)</description>
 	<url>https://github.com/flozano/statsd-netty</url>
@@ -17,7 +17,7 @@
 		<url>https://github.com/flozano/statsd-netty/</url>
 		<connection>scm:git:git@github.com:flozano/statsd-netty.git</connection>
 		<developerConnection>scm:git:git@github.com:flozano/statsd-netty.git</developerConnection>
-		<tag>v0.2.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<ciManagement>
 		<system>travis-ci</system>
