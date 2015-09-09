@@ -58,7 +58,7 @@ public interface Metrics extends AutoCloseable {
 	 *
 	 * Closing the returned Metrics will NOT close this one.
 	 *
-	 * @returns the batched metrics
+	 * @return the batched metrics
 	 */
 	Metrics batch();
 

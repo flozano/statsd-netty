@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Client for StatsD
+ * Client for metrics
  *
  * @author flozano
  *
@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public interface MetricsClient extends AutoCloseable {
 
 	/**
-	 * Send a bunch of metrics to StatsD server.
+	 * Send a bunch of metrics
 	 *
 	 * @param metrics
 	 *            the metrics to be sent
@@ -23,10 +23,11 @@ public interface MetricsClient extends AutoCloseable {
 	CompletableFuture<Void> send(MetricValue... metrics);
 
 	/**
-	 * Send a bunch of metrics to StatsD server
+	 * Send a bunch of metrics
 	 *
-	 * @param map
-	 * @return
+	 * @param metrics
+	 *            the metrics to be sent
+	 * @return a future that allows to hook on the operation completion
 	 */
 	default CompletableFuture<Void> send(Stream<MetricValue> metrics) {
 		List<MetricValue> values = metrics.collect(Collectors.toList());
