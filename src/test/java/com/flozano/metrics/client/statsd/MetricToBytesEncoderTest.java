@@ -56,8 +56,9 @@ public class MetricToBytesEncoderTest {
 		MetricValue metricValue = newMetric();
 		StringBuilder sb = new StringBuilder();
 		MetricToBytesEncoder.toStringParts(metricValue, sb::append);
-		assertThat(sb.toString(), is(equalTo(expectedValue(metricValue.getSuffix()))));
+		assertThat(sb.toString(), is(equalTo(expectedValue(metricValue.getCode()))));
 	}
+
 
 	String expectedValue(String suffix) {
 		if (sampleRate == null) {

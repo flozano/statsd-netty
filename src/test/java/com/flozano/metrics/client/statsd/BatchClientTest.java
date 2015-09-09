@@ -22,7 +22,6 @@ import com.flozano.metrics.client.GaugeValue;
 import com.flozano.metrics.client.MetricValue;
 import com.flozano.metrics.client.MetricsClient;
 import com.flozano.metrics.client.TimingValue;
-import com.flozano.metrics.client.statsd.BatchStatsDClient;
 
 public class BatchClientTest {
 

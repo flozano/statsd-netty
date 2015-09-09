@@ -22,14 +22,14 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private final boolean measureAsTime;
 	private final BackgroundReporter reporter;
 
-	private Tags tags;
+	private final Tags tags;
 
 	MetricsImpl(MetricsClient client, Clock clock, boolean measureAsTime, Optional<Tags> tags) {
 		this.client = requireNonNull(client);
 		this.clock = requireNonNull(clock);
 		this.measureAsTime = measureAsTime;
 		this.reporter = new SimpleGaugeReporter();
-		this.tags = tags.orElseGet(() -> new Tags());
+		this.tags = tags.orElseGet(() -> Tags.empty());
 	}
 
 	@Override
@@ -92,7 +92,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public void count(long value) {
-			client.send(new CountValue(name, value));
+			client.send(new CountValue(name, value, tags));
 		}
 	}
 
@@ -118,12 +118,12 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public void value(long value) {
-			client.send(new GaugeValue(name, value, false));
+			client.send(new GaugeValue(name, value, false, tags));
 		}
 
 		@Override
 		public void delta(long value) {
-			client.send(new GaugeValue(name, value, true));
+			client.send(new GaugeValue(name, value, true, tags));
 		}
 
 		@Override
@@ -149,7 +149,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public Tags getTags() {
-			return new Tags();
+			return Tags.empty();
 		}
 
 		@Override
@@ -236,7 +236,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public void time(long value) {
-			client.send(new TimingValue(name, value));
+			client.send(new TimingValue(name, value, tags));
 		}
 	}
 
@@ -262,7 +262,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public void value(long value) {
-			client.send(new TimingValue(name, value));
+			client.send(new TimingValue(name, value, tags));
 		}
 
 	}
@@ -289,7 +289,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public void value(long value) {
-			client.send(new HistogramValue(name, value));
+			client.send(new HistogramValue(name, value, tags));
 		}
 
 	}

@@ -5,10 +5,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -26,7 +22,11 @@ import org.mockito.MockitoAnnotations;
 
 import com.flozano.metrics.client.CountValue;
 import com.flozano.metrics.client.MetricValue;
-import com.flozano.metrics.client.statsd.MetricArrayToBytesEncoder;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
 
 public class MetricArrayToBytesEncoderTest {
 
@@ -82,7 +82,7 @@ public class MetricArrayToBytesEncoderTest {
 		verify(ctx, times(1)).alloc();
 		verifyNoMoreInteractions(ctx, allocator);
 	}
-	
+
 	@Test
 	public void testSingleBigElement() throws Exception {
 		MetricValue[] elements = new MetricValue[] { element(50) };
@@ -105,8 +105,7 @@ public class MetricArrayToBytesEncoderTest {
 
 	@Test
 	public void testFewElements_cantFitInOnePackage() throws Exception {
-		MetricValue[] elements = new MetricValue[] { element(10), element(10),
-				element(10) };
+		MetricValue[] elements = new MetricValue[] { element(10), element(10), element(10) };
 		MetricValue[] elements1 = new MetricValue[] { elements[0], elements[1] };
 		MetricValue[] elements2 = new MetricValue[] { elements[2] };
 
@@ -118,24 +117,19 @@ public class MetricArrayToBytesEncoderTest {
 	}
 
 	static Matcher<List<Object>> containsBufferFor(MetricValue[]... metricsArgs) {
-		return new CustomMatcher<List<Object>>(
-				"Contains buffers for the specicied metrics") {
+		return new CustomMatcher<List<Object>>("Contains buffers for the specicied metrics") {
 
 			@Override
 			public boolean matches(Object item) {
 				@SuppressWarnings("unchecked")
-				List<String> items = ((List<Object>) item)
-						.stream()
-						.map((x) -> ((ByteBuf) x)
-								.toString(StandardCharsets.UTF_8))
-						.collect(Collectors.toList());
+				List<String> items = ((List<Object>) item).stream()
+						.map((x) -> ((ByteBuf) x).toString(StandardCharsets.UTF_8)).collect(Collectors.toList());
 				if (metricsArgs.length != items.size()) {
 					return false;
 				}
 
 				for (MetricValue[] metrics : metricsArgs) {
-					String payload = Arrays.asList(metrics).stream()
-							.map((x) -> x.toString())
+					String payload = Arrays.asList(metrics).stream().map(MetricToBytesEncoder::toString)
 							.collect(Collectors.joining("\n"));
 
 					if (!items.contains(payload)) {
@@ -149,15 +143,15 @@ public class MetricArrayToBytesEncoderTest {
 	}
 
 	static MetricValue element(int nBytes) {
+
 		StringBuilder sb = new StringBuilder("a");
 		for (;;) {
-			MetricValue m = new CountValue(sb.toString(), 1, null);
-			int length = m.toString().getBytes(StandardCharsets.UTF_8).length;
+			MetricValue m = new CountValue(sb.toString(), 1, null, null);
+			int length = MetricToBytesEncoder.toString(m).getBytes(StandardCharsets.UTF_8).length;
 			if (length < nBytes) {
 				sb = sb.append('a');
 			} else if (length > nBytes) {
-				throw new IllegalArgumentException(
-						"Provided amount of bytes too low");
+				throw new IllegalArgumentException("Provided amount of bytes too low");
 			} else {
 				return m;
 			}

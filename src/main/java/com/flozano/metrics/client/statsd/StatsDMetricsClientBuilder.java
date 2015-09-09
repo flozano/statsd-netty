@@ -1,8 +1,9 @@
-package com.flozano.metrics.client;
+package com.flozano.metrics.client.statsd;
 
 import java.util.function.UnaryOperator;
 
-import com.flozano.metrics.client.statsd.StatsDMetricsClientBuilderImpl;
+import com.flozano.metrics.client.MetricValue;
+import com.flozano.metrics.client.MetricsClient;
 
 import io.netty.channel.EventLoopGroup;
 
@@ -12,13 +13,13 @@ import io.netty.channel.EventLoopGroup;
  * @author flozano
  *
  */
-public interface MetricsClientBuilder {
+public interface StatsDMetricsClientBuilder {
 
 	/**
 	 * Creates a new StatsD client builder
 	 *
 	 */
-	static MetricsClientBuilder statsd() {
+	static StatsDMetricsClientBuilder create() {
 		return new StatsDMetricsClientBuilderImpl();
 	}
 
@@ -29,7 +30,7 @@ public interface MetricsClientBuilder {
 	 * \@0.75 suffix will be added to the metrics)
 	 *
 	 */
-	MetricsClientBuilder withSampleRate(Double rate);
+	StatsDMetricsClientBuilder withSampleRate(Double rate);
 
 	/**
 	 * Sets the rate at which the client will flush the pending metric values to
@@ -38,17 +39,17 @@ public interface MetricsClientBuilder {
 	 * Eg: if a rate is 0.1d, 1 in 10 writes will flush the pending metrics.
 	 *
 	 */
-	MetricsClientBuilder withFlushRate(double rate);
+	StatsDMetricsClientBuilder withFlushRate(double rate);
 
 	/**
 	 * The StatsD hostname that will receive the metric values
 	 */
-	MetricsClientBuilder withHost(String host);
+	StatsDMetricsClientBuilder withHost(String host);
 
 	/**
 	 * The UDP port where the server is listening to.
 	 */
-	MetricsClientBuilder withPort(int port);
+	StatsDMetricsClientBuilder withPort(int port);
 
 	/**
 	 * Allow to provide a pre-created EventLoopGroup.
@@ -57,7 +58,7 @@ public interface MetricsClientBuilder {
 	 * EventLoopGroup will NOT be shutdown.
 	 *
 	 */
-	MetricsClientBuilder withEventLoopGroup(EventLoopGroup eventLoopGroup);
+	StatsDMetricsClientBuilder withEventLoopGroup(EventLoopGroup eventLoopGroup);
 
 	/**
 	 * Optional preprocessor to perform additional processing over the metrics
@@ -66,7 +67,7 @@ public interface MetricsClientBuilder {
 	 * @param preprocessor
 	 * @return
 	 */
-	MetricsClientBuilder withPreprocessor(UnaryOperator<MetricValue[]> preprocessor);
+	StatsDMetricsClientBuilder withPreprocessor(UnaryOperator<MetricValue[]> preprocessor);
 
 	/**
 	 * @return a newly configured StatsD client.

@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-import com.flozano.metrics.client.MetricsClientBuilder;
 import com.flozano.metrics.client.MetricsClient;
+import com.flozano.metrics.client.statsd.StatsDMetricsClientBuilder;
 
 final class MetricsBuilderImpl implements MetricsBuilder {
 
@@ -35,8 +35,8 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 	}
 
 	@Override
-	public MetricsBuilder withClient(UnaryOperator<MetricsClientBuilder> clientBuilderConfigurer) {
-		this.client = Optional.of(requireNonNull(clientBuilderConfigurer).apply(MetricsClientBuilder.statsd()).build());
+	public MetricsBuilder withClient(UnaryOperator<StatsDMetricsClientBuilder> clientBuilderConfigurer) {
+		this.client = Optional.of(requireNonNull(clientBuilderConfigurer).apply(StatsDMetricsClientBuilder.create()).build());
 		return this;
 	}
 
@@ -60,7 +60,7 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 
 	@Override
 	public Metrics build() {
-		MetricsClient statsdClient = client.orElseGet(() -> MetricsClientBuilder.statsd().build());
+		MetricsClient statsdClient = client.orElseGet(() -> StatsDMetricsClientBuilder.create().build());
 		Metrics m = new MetricsImpl(statsdClient, clock.orElse(DEFAULT_CLOCK), measureAsTime, Optional.empty());
 		return prefix.map((Function<String, Metrics>) (prefix) -> new PrefixedMetrics(m, prefix)).orElse(m);
 	}

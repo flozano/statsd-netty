@@ -31,6 +31,12 @@ class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 		LOGGER.trace("Wrote {} ", msg);
 	}
 
+	public static String toString(MetricValue msg) {
+		StringBuilder sb = new StringBuilder();
+		toStringParts(msg, sb::append);
+		return sb.toString();
+	}
+
 	public static void toStringParts(MetricValue msg, Consumer<String> parts) {
 		parts.accept(msg.getName());
 		parts.accept(":");
@@ -39,7 +45,7 @@ class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 		}
 		parts.accept(Long.toString(msg.getValue()));
 		parts.accept("|");
-		parts.accept(msg.getSuffix());
+		parts.accept(msg.getCode());
 		Double r = msg.getSampleRate();
 		if (r != null) {
 			parts.accept("|@");
