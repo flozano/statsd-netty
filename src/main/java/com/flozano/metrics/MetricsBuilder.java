@@ -26,6 +26,8 @@ public interface MetricsBuilder {
 	/**
 	 * Set the metrics to use a specific client
 	 *
+	 * @param client
+	 *            the client
 	 * @return a new builder
 	 */
 	MetricsBuilder withClient(MetricsClient client);
@@ -44,6 +46,8 @@ public interface MetricsBuilder {
 	 * Set the metrics to use a specific clock instead of the system UTC-based
 	 * one.
 	 *
+	 * @param clock
+	 *            the clock
 	 * @return a new builder
 	 */
 	MetricsBuilder withClock(Clock clock);
@@ -51,6 +55,8 @@ public interface MetricsBuilder {
 	/**
 	 * Enforce the metrics to be prefixed by the specified String.
 	 *
+	 * @param prefix
+	 *            the prefix
 	 * @return a new builder
 	 */
 	MetricsBuilder withPrefix(String prefix);

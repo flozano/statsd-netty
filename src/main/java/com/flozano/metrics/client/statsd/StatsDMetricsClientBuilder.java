@@ -30,6 +30,8 @@ public interface StatsDMetricsClientBuilder {
 	 * Eg: if rate is 0.75d, more or les 75% of items will be sent (and the
 	 * \@0.75 suffix will be added to the metrics)
 	 *
+	 * @param rate
+	 *            the rate
 	 * @return the builder
 	 */
 	StatsDMetricsClientBuilder withSampleRate(Double rate);
@@ -40,6 +42,8 @@ public interface StatsDMetricsClientBuilder {
 	 *
 	 * Eg: if a rate is 0.1d, 1 in 10 writes will flush the pending metrics.
 	 *
+	 * @param rate
+	 *            the rate
 	 * @return the builder
 	 */
 	StatsDMetricsClientBuilder withFlushRate(double rate);
@@ -47,6 +51,8 @@ public interface StatsDMetricsClientBuilder {
 	/**
 	 * The StatsD hostname that will receive the metric values
 	 *
+	 * @param host
+	 *            the host
 	 * @return the builder
 	 */
 	StatsDMetricsClientBuilder withHost(String host);
@@ -54,6 +60,8 @@ public interface StatsDMetricsClientBuilder {
 	/**
 	 * The UDP port where the server is listening to.
 	 *
+	 * @param port
+	 *            the port
 	 * @return the builder
 	 */
 	StatsDMetricsClientBuilder withPort(int port);
@@ -64,6 +72,8 @@ public interface StatsDMetricsClientBuilder {
 	 * If provided, when {@link MetricsClient#close()} is invoked, the
 	 * EventLoopGroup will NOT be shutdown.
 	 *
+	 * @param eventLoopGroup
+	 *            the eventLoopGroup
 	 * @return the builder
 	 */
 	StatsDMetricsClientBuilder withEventLoopGroup(EventLoopGroup eventLoopGroup);

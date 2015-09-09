@@ -4,6 +4,9 @@ public interface Counter extends Metric {
 
 	/**
 	 * Add the provided value to this counter
+	 *
+	 * @param value
+	 *            the value
 	 */
 	void count(long value);
 
