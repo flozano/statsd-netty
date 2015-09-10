@@ -34,7 +34,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 	@Override
 	public TimerImpl timer(CharSequence... name) {
-		return new TimerImpl(metricName(name), tags);
+		return new TimerImpl(metricName(name));
 	}
 
 	@Override
@@ -45,20 +45,20 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	@Override
 	public Measure measure(CharSequence... name) {
 		if (measureAsTime) {
-			return new TimeMeasureImpl(metricName(name), tags);
+			return new TimeMeasureImpl(metricName(name));
 		} else {
-			return new HistogramMeasureImpl(metricName(name), tags);
+			return new HistogramMeasureImpl(metricName(name));
 		}
 	}
 
 	@Override
 	public CounterImpl counter(CharSequence... name) {
-		return new CounterImpl(metricName(name), tags);
+		return new CounterImpl(metricName(name));
 	}
 
 	@Override
 	public GaugeImpl gauge(CharSequence... name) {
-		return new GaugeImpl(metricName(name), tags);
+		return new GaugeImpl(metricName(name));
 	}
 
 	@Override
@@ -73,11 +73,8 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class CounterImpl implements Counter {
 		private final String name;
 
-		private final Tags tags;
-
-		private CounterImpl(String name, Tags tags) {
+		private CounterImpl(String name) {
 			this.name = name;
-			this.tags = tags;
 		}
 
 		@Override
@@ -99,11 +96,9 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class GaugeImpl implements Gauge {
 
 		private final String name;
-		private final Tags tags;
 
-		private GaugeImpl(String name, Tags tags) {
+		private GaugeImpl(String name) {
 			this.name = name;
-			this.tags = tags;
 		}
 
 		@Override
@@ -149,7 +144,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public Tags getTags() {
-			return Tags.empty();
+			return tags;
 		}
 
 		@Override
@@ -197,11 +192,9 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class TimerImpl implements Timer {
 
 		private final String name;
-		private final Tags tags;
 
-		private TimerImpl(String name, Tags tags) {
+		private TimerImpl(String name) {
 			this.name = name;
-			this.tags = tags;
 		}
 
 		@Override
@@ -243,11 +236,9 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class TimeMeasureImpl implements Measure {
 
 		private final String name;
-		private final Tags tags;
 
-		public TimeMeasureImpl(String name, Tags tags) {
+		private TimeMeasureImpl(String name) {
 			this.name = name;
-			this.tags = tags;
 		}
 
 		@Override
@@ -270,11 +261,9 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private class HistogramMeasureImpl implements Measure {
 
 		private final String name;
-		private final Tags tags;
 
-		public HistogramMeasureImpl(String name, Tags tags) {
+		private HistogramMeasureImpl(String name) {
 			this.name = name;
-			this.tags = tags;
 		}
 
 		@Override
@@ -298,7 +287,7 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		private final ScheduledExecutorService executor;
 
-		SimpleGaugeReporter() {
+		private SimpleGaugeReporter() {
 			this.executor = Executors.newSingleThreadScheduledExecutor();
 		}
 

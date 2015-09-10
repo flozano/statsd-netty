@@ -48,7 +48,12 @@ public final class Tags {
 			if (o == null) {
 				return 1;
 			} else {
-				return name.toString().compareTo(o.toString());
+				int result = name.toString().compareTo(o.name.toString());
+				if (result == 0) {
+					return value.toString().compareTo(o.value.toString());
+				} else {
+					return result;
+				}
 			}
 		}
 
@@ -77,5 +82,9 @@ public final class Tags {
 			return true;
 		}
 
+	}
+
+	public boolean has(CharSequence name) {
+		return tags.stream().anyMatch(x -> x.name.toString().equals(name.toString()));
 	}
 }
