@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ public class MetricsTest {
 		MockitoAnnotations.initMocks(this);
 		metrics = MetricsBuilder.create().withClient(client).withClock(null).withPrefix("pr3fix").build().tagged("xyz",
 				"abcd");
+		when(client.batch()).thenReturn(client);
 	}
 
 	@After
@@ -83,6 +85,20 @@ public class MetricsTest {
 	public void gaugeValue() {
 		ArgumentCaptor<GaugeValue> argument = ArgumentCaptor.forClass(GaugeValue.class);
 		metrics.gauge("gauge").value(1234l);
+		verify(client, times(1)).send(argument.capture());
+		assertEquals("pr3fix.gauge", argument.getValue().getName());
+		assertEquals(1234l, argument.getValue().getValue());
+		assertFalse(argument.getValue().isDelta());
+		assertTrue(argument.getValue().getTags().has("xyz"));
+
+	}
+
+	@Test
+	public void gaugeValueBatch() {
+		ArgumentCaptor<GaugeValue> argument = ArgumentCaptor.forClass(GaugeValue.class);
+		try (Metrics batch = metrics.batch()) {
+			batch.gauge("gauge").value(1234l);
+		}
 		verify(client, times(1)).send(argument.capture());
 		assertEquals("pr3fix.gauge", argument.getValue().getName());
 		assertEquals(1234l, argument.getValue().getValue());
