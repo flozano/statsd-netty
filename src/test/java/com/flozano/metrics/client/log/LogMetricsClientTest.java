@@ -38,25 +38,23 @@ public class LogMetricsClientTest {
 
 	@Test
 	public void testRightParameters() {
-		client.send(new CountValue("x", 1234, Tags.empty().with("mytag", "myvalue")));
+		client.send(new CountValue("x", 1234, Tags.empty().with("mytag", "myvalue").with("other", "abc")));
 		ArgumentCaptor<Object> varargsCaptor = ArgumentCaptor.forClass(Object.class);
 
 		verify(logger, times(1)).info(eq(LogMetricsClient.FORMAT), (Object[]) varargsCaptor.capture());
 		List<Object> values = varargsCaptor.getAllValues();
-		Instant now = Instant.now();
-		Instant then = Instant.parse((CharSequence) values.get(0));
-		assertTrue(Duration.between(then, now).toMillis() < 500);
+		assertTrue(Duration.between(Instant.parse((CharSequence) values.get(0)), Instant.now()).toMillis() < 100);
 		assertEquals("x", values.get(1));
 		assertEquals("c", values.get(2));
 		assertEquals(1234l, values.get(3));
-		assertEquals("\tmytag:myvalue", values.get(4));
+		assertEquals("\tmytag:myvalue\tother:abc", values.get(4));
 	}
 
 	@Test
 	public void testSimple() {
+		client.send(new CountValue("x", 1234));
 
 		client.send(new CountValue("y", 1234), new CountValue("z", 1234));
-
 		verify(logger, times(3)).info(eq(LogMetricsClient.FORMAT), (Object[]) anyVararg());
 		verifyNoMoreInteractions(logger);
 	}
