@@ -1,14 +1,11 @@
 package com.flozano.metrics;
 
-import static java.util.Objects.requireNonNull;
-
 import java.time.Clock;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 import com.flozano.metrics.client.MetricsClient;
-import com.flozano.metrics.client.statsd.StatsDMetricsClientBuilder;
+import com.flozano.metrics.client.NoOpMetricsClient;
 
 final class MetricsBuilderImpl implements MetricsBuilder {
 
@@ -35,12 +32,6 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 	}
 
 	@Override
-	public MetricsBuilder withClient(UnaryOperator<StatsDMetricsClientBuilder> clientBuilderConfigurer) {
-		this.client = Optional.of(requireNonNull(clientBuilderConfigurer).apply(StatsDMetricsClientBuilder.create()).build());
-		return this;
-	}
-
-	@Override
 	public MetricsBuilder withClient(MetricsClient client) {
 		this.client = Optional.of(client);
 		return this;
@@ -60,7 +51,7 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 
 	@Override
 	public Metrics build() {
-		MetricsClient statsdClient = client.orElseGet(() -> StatsDMetricsClientBuilder.create().build());
+		MetricsClient statsdClient = client.orElse(new NoOpMetricsClient());
 		Metrics m = new MetricsImpl(statsdClient, clock.orElse(DEFAULT_CLOCK), measureAsTime, Optional.empty());
 		return prefix.map((Function<String, Metrics>) (prefix) -> new PrefixedMetrics(m, prefix)).orElse(m);
 	}

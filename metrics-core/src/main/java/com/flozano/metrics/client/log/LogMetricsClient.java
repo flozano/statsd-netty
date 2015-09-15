@@ -45,6 +45,9 @@ public class LogMetricsClient implements MetricsClient {
 	private String formatTags(MetricValue m) {
 		StringBuilder sb = new StringBuilder();
 		m.getTags().stream().map(this::formatTag).forEach(sb::append);
+		if (m.getSampleRate() != null && m.getSampleRate() < 1) {
+			sb.append("\tr:").append(m.getSampleRate());
+		}
 		return sb.toString();
 	}
 

@@ -1,10 +1,8 @@
 package com.flozano.metrics;
 
 import java.time.Clock;
-import java.util.function.UnaryOperator;
 
 import com.flozano.metrics.client.MetricsClient;
-import com.flozano.metrics.client.statsd.StatsDMetricsClientBuilder;
 
 /**
  * Builder for Metrics
@@ -31,16 +29,6 @@ public interface MetricsBuilder {
 	 * @return a new builder
 	 */
 	MetricsBuilder withClient(MetricsClient client);
-
-	/**
-	 * Set the metrics to use a newly configured client
-	 *
-	 * @return a new builder
-	 *
-	 * @param clientBuilderConfigurer
-	 *            The configurator for the newly configured client
-	 */
-	MetricsBuilder withClient(UnaryOperator<StatsDMetricsClientBuilder> clientBuilderConfigurer);
 
 	/**
 	 * Set the metrics to use a specific clock instead of the system UTC-based
