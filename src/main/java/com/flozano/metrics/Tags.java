@@ -62,6 +62,7 @@ public final class Tags {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			result = prime * result + ((value == null) ? 0 : value.hashCode());
 			return result;
 		}
 
@@ -79,9 +80,39 @@ public final class Tags {
 					return false;
 			} else if (!name.toString().equals(other.name.toString()))
 				return false;
+			if (value == null) {
+				if (other.value != null)
+					return false;
+			} else if (!value.toString().equals(other.value.toString()))
+				return false;
 			return true;
 		}
 
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Tags other = (Tags) obj;
+		if (tags == null) {
+			if (other.tags != null)
+				return false;
+		} else if (!tags.equals(other.tags))
+			return false;
+		return true;
 	}
 
 	public boolean has(CharSequence name) {
