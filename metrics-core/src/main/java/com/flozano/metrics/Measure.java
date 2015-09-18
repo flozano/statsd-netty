@@ -9,4 +9,5 @@ public interface Measure extends Metric {
 	 *            The value
 	 */
 	void value(long value);
+
 }

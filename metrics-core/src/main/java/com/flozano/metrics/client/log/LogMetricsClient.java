@@ -16,7 +16,6 @@ import com.flozano.metrics.client.MetricsClient;
 
 public class LogMetricsClient implements MetricsClient {
 	private final Logger logger;
-	public static final String FORMAT = "time:{}\tm:{}\t{}:{}{}";
 
 	public LogMetricsClient(Logger logger) {
 		this.logger = requireNonNull(logger);
@@ -39,15 +38,27 @@ public class LogMetricsClient implements MetricsClient {
 	}
 
 	private void metric(String t, MetricValue m) {
-		logger.info(FORMAT, t, m.getName(), m.getCode(), m.getValue(), formatTags(m));
+		String key = formatKey(m);
+		String value = formatValue(m);
+		StringBuilder sb = new StringBuilder("time:").append(t).append(key).append(value);
+		apply(m, key, sb.toString());
 	}
 
-	private String formatTags(MetricValue m) {
-		StringBuilder sb = new StringBuilder();
-		m.getTags().stream().map(this::formatTag).forEach(sb::append);
+	protected void apply(MetricValue m, String key, String value) {
+		logger.info(value);
+	}
+
+	private String formatValue(MetricValue m) {
+		StringBuilder sb = new StringBuilder("\t").append(m.getCode()).append(':').append(m.getValue());
 		if (m.getSampleRate() != null && m.getSampleRate() < 1) {
 			sb.append("\tr:").append(m.getSampleRate());
 		}
+		return sb.toString();
+	}
+
+	private String formatKey(MetricValue m) {
+		StringBuilder sb = new StringBuilder("\tm:").append(m.getName());
+		m.getTags().stream().map(this::formatTag).forEach(sb::append);
 		return sb.toString();
 	}
 

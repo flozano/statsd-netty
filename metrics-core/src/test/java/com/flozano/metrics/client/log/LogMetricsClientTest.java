@@ -1,20 +1,12 @@
 package com.flozano.metrics.client.log;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
+import static org.mockito.AdditionalMatchers.find;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
@@ -39,15 +31,8 @@ public class LogMetricsClientTest {
 	@Test
 	public void testRightParameters() {
 		client.send(new CountValue("x", 1234, Tags.empty().with("mytag", "myvalue").with("other", "abc")));
-		ArgumentCaptor<Object> varargsCaptor = ArgumentCaptor.forClass(Object.class);
-
-		verify(logger, times(1)).info(eq(LogMetricsClient.FORMAT), (Object[]) varargsCaptor.capture());
-		List<Object> values = varargsCaptor.getAllValues();
-		assertTrue(Duration.between(Instant.parse((CharSequence) values.get(0)), Instant.now()).toMillis() < 100);
-		assertEquals("x", values.get(1));
-		assertEquals("c", values.get(2));
-		assertEquals(1234l, values.get(3));
-		assertEquals("\tmytag:myvalue\tother:abc", values.get(4));
+		verify(logger, times(1)).info(find("^time:(.*)\tm:x\tmytag:myvalue\tother:abc\tc:1234"));
+		verifyNoMoreInteractions(logger);
 	}
 
 	@Test
@@ -55,7 +40,12 @@ public class LogMetricsClientTest {
 		client.send(new CountValue("x", 1234));
 
 		client.send(new CountValue("y", 1234), new CountValue("z", 1234));
-		verify(logger, times(3)).info(eq(LogMetricsClient.FORMAT), (Object[]) anyVararg());
+		// verify(logger, times(3)).info(eq(LogMetricsClient.FORMAT), (Object[])
+		// anyVararg());
+		verify(logger).info(find("^time:(.*)\tm:x\tc:1234"));
+		verify(logger).info(find("^time:(.*)\tm:y\tc:1234"));
+		verify(logger).info(find("^time:(.*)\tm:z\tc:1234"));
+
 		verifyNoMoreInteractions(logger);
 	}
 
@@ -65,8 +55,9 @@ public class LogMetricsClientTest {
 			client.send(new CountValue("x", 1234));
 			client.send(new CountValue("y", 1234), new CountValue("z", 1234));
 		}
-
-		verify(logger, times(3)).info(eq(LogMetricsClient.FORMAT), (Object[]) anyVararg());
+		verify(logger).info(find("^time:(.*)\tm:x\tc:1234"));
+		verify(logger).info(find("^time:(.*)\tm:y\tc:1234"));
+		verify(logger).info(find("^time:(.*)\tm:z\tc:1234"));
 		verifyNoMoreInteractions(logger);
 	}
 }

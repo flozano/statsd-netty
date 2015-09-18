@@ -6,7 +6,7 @@
 		<artifactId>metrics-parent</artifactId>
 		<groupId>com.flozano.metrics</groupId>
 		<version>0.2.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>metrics-core</artifactId>
 </project>

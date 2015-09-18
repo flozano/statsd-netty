@@ -3,24 +3,24 @@ package com.flozano.metrics;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collections;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
 public final class Tags {
-	private static final Tags EMPTY = new Tags(Collections.emptySet());
-	private final Set<Tag> tags;
+	private static final Tags EMPTY = new Tags(Collections.emptySortedSet());
+	private final SortedSet<Tag> tags;
 
 	public static Tags empty() {
 		return EMPTY;
 	}
 
-	private Tags(Set<Tag> tags) {
+	private Tags(SortedSet<Tag> tags) {
 		this.tags = tags;
 	}
 
 	public final Tags with(CharSequence name, CharSequence value) {
-		Set<Tag> t = new TreeSet<Tag>(tags);
+		SortedSet<Tag> t = new TreeSet<Tag>(tags);
 		t.add(new Tag(name, value));
 		return new Tags(t);
 	}
