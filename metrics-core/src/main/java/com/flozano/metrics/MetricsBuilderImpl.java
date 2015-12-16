@@ -19,6 +19,8 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 
 	private boolean measureAsTime = true;
 
+	private boolean smartGauges = false;
+
 	@Override
 	public MetricsBuilder withMeasureAsTime() {
 		this.measureAsTime = true;
@@ -52,7 +54,14 @@ final class MetricsBuilderImpl implements MetricsBuilder {
 	@Override
 	public Metrics build() {
 		MetricsClient statsdClient = client.orElse(new NoOpMetricsClient());
-		Metrics m = new MetricsImpl(statsdClient, clock.orElse(DEFAULT_CLOCK), measureAsTime, Optional.empty());
+		Metrics m = new MetricsImpl(statsdClient, clock.orElse(DEFAULT_CLOCK), measureAsTime, smartGauges,
+				Optional.empty());
 		return prefix.map((Function<String, Metrics>) (prefix) -> new PrefixedMetrics(m, prefix)).orElse(m);
+	}
+
+	@Override
+	public MetricsBuilder withSmartGauges(boolean smartGauges) {
+		this.smartGauges = smartGauges;
+		return this;
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 import com.flozano.metrics.client.CountValue;
@@ -20,14 +21,16 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 	private final MetricsClient client;
 	private final Clock clock;
 	private final boolean measureAsTime;
+	private final boolean smartGauges;
 	private final BackgroundReporter reporter;
 
 	private final Tags tags;
 
-	MetricsImpl(MetricsClient client, Clock clock, boolean measureAsTime, Optional<Tags> tags) {
+	MetricsImpl(MetricsClient client, Clock clock, boolean measureAsTime, boolean smartGauges, Optional<Tags> tags) {
 		this.client = requireNonNull(client);
 		this.clock = requireNonNull(clock);
 		this.measureAsTime = measureAsTime;
+		this.smartGauges = smartGauges;
 		this.reporter = new SimpleGaugeReporter();
 		this.tags = tags.orElseGet(() -> Tags.empty());
 	}
@@ -58,7 +61,11 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 	@Override
 	public GaugeImpl gauge(CharSequence... name) {
-		return new GaugeImpl(metricName(name));
+		if (smartGauges) {
+			return new SmartGaugeImpl(metricName(name));
+		} else {
+			return new GaugeImpl(metricName(name));
+		}
 	}
 
 	@Override
@@ -118,12 +125,31 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 		@Override
 		public void delta(long value) {
-			client.send(new GaugeValue(name, value, true, tags));
+			if (value != 0) {
+				client.send(new GaugeValue(name, value, true, tags));
+			}
 		}
 
 		@Override
 		public void supply(long time, TimeUnit unit, Supplier<Long> supplier) {
 			reporter.addGauge(this, supplier, time, unit);
+		}
+
+	}
+
+	private class SmartGaugeImpl extends GaugeImpl {
+
+		private AtomicLong lastValue;
+
+		private SmartGaugeImpl(String name) {
+			super(name);
+		}
+
+		@Override
+		public void value(long value) {
+			if (lastValue.getAndSet(value) != value) {
+				super.value(value);
+			}
 		}
 
 	}
@@ -310,12 +336,12 @@ final class MetricsImpl implements AutoCloseable, Metrics {
 
 	@Override
 	public Metrics batch() {
-		return new MetricsImpl(client.batch(), clock, measureAsTime, Optional.of(tags));
+		return new MetricsImpl(client.batch(), clock, measureAsTime, smartGauges, Optional.of(tags));
 	}
 
 	@Override
 	public Metrics tagged(CharSequence name, CharSequence value) {
-		return new MetricsImpl(client, clock, measureAsTime, Optional.of(tags.with(name, value)));
+		return new MetricsImpl(client, clock, measureAsTime, smartGauges, Optional.of(tags.with(name, value)));
 	}
 
 }

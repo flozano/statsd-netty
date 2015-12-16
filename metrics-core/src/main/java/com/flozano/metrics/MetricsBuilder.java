@@ -64,6 +64,13 @@ public interface MetricsBuilder {
 	MetricsBuilder withMeasureAsHistogram();
 
 	/**
+	 * Send gauge values only if they have changed from previous value.
+	 *
+	 * @return
+	 */
+	MetricsBuilder withSmartGauges(boolean smartGauges);
+
+	/**
 	 * @return a newly configured Metrics instance
 	 */
 	Metrics build();
