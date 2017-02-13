@@ -3,6 +3,7 @@ package com.flozano.metrics;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
@@ -10,6 +11,7 @@ import java.util.stream.Stream;
 public final class Tags {
 	private static final Tags EMPTY = new Tags(Collections.emptySortedSet());
 	private final SortedSet<Tag> tags;
+	private final int hashCode;
 
 	public static Tags empty() {
 		return EMPTY;
@@ -17,6 +19,7 @@ public final class Tags {
 
 	private Tags(SortedSet<Tag> tags) {
 		this.tags = tags;
+		this.hashCode = tags.hashCode();
 	}
 
 	public final Tags with(CharSequence name, CharSequence value) {
@@ -36,11 +39,13 @@ public final class Tags {
 	public static final class Tag implements Comparable<Tag> {
 		public final CharSequence name;
 		public final CharSequence value;
+		private final int hashCode;
 
 		public Tag(CharSequence name, CharSequence value) {
 			super();
 			this.name = requireNonNull(name);
 			this.value = requireNonNull(value);
+			this.hashCode = Objects.hash(name, value);
 		}
 
 		@Override
@@ -59,60 +64,38 @@ public final class Tags {
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			result = prime * result + ((value == null) ? 0 : value.hashCode());
-			return result;
+			return hashCode;
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
+			if (obj == null) {
 				return false;
-			if (getClass() != obj.getClass())
+			}
+			if (!(obj instanceof Tag)) {
 				return false;
+			}
 			Tag other = (Tag) obj;
-			if (name == null) {
-				if (other.name != null)
-					return false;
-			} else if (!name.toString().equals(other.name.toString()))
-				return false;
-			if (value == null) {
-				if (other.value != null)
-					return false;
-			} else if (!value.toString().equals(other.value.toString()))
-				return false;
-			return true;
+			return Objects.equals(name, other.name) && Objects.equals(value, other.value);
 		}
 
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
-		return result;
+		return hashCode;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (!(obj instanceof Tags)) {
 			return false;
+		}
 		Tags other = (Tags) obj;
-		if (tags == null) {
-			if (other.tags != null)
-				return false;
-		} else if (!tags.equals(other.tags))
-			return false;
-		return true;
+		return Objects.equals(tags, other.tags);
 	}
 
 	public boolean has(CharSequence name) {
