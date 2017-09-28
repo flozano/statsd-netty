@@ -43,7 +43,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<!-- Versions -->
 		<awaitility.version>1.7.0</awaitility.version>
-		<guava.version>19.0</guava.version>
+		<guava.version>21.0</guava.version>
 		<jacoco-maven-plugin.version>0.7.2.201409121644</jacoco-maven-plugin.version>
 		<java.version>1.8</java.version>
 		<javassist.version>3.20.0-GA</javassist.version>
@@ -57,7 +57,7 @@
 		<maven-source-plugin.version>2.4</maven-source-plugin.version>
 		<maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
 		<mockito.version>1.10.17</mockito.version>
-		<netty.version>4.1.0.CR2</netty.version>
+		<netty.version>4.1.12.Final</netty.version>
 		<slf4j.version>1.7.14</slf4j.version>
 	</properties>
 	<dependencyManagement>
