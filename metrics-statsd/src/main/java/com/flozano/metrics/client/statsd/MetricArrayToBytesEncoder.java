@@ -1,10 +1,8 @@
 package com.flozano.metrics.client.statsd;
 
-import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,10 +71,7 @@ class MetricArrayToBytesEncoder extends MessageToMessageEncoder<MetricValue[]> {
 			} else {
 				assert false;
 			}
-
-			ByteCountingWriter writer = new ByteCountingWriter(buf);
-			MetricToBytesEncoder.toStringParts(m, writer);
-			currentBytes += writer.getWrittenBytes();
+			currentBytes += MetricToBytesEncoder.write(m, buf);
 		}
 
 		if (buf != null) {
@@ -84,27 +79,5 @@ class MetricArrayToBytesEncoder extends MessageToMessageEncoder<MetricValue[]> {
 		}
 		LOGGER.trace("Encoded {} metrics into {} different packets",
 				msg.length, out.size());
-	}
-
-	private static class ByteCountingWriter implements Consumer<String> {
-
-		private final ByteBuf outputBuffer;
-		private int writtenBytes = 0;
-
-		public ByteCountingWriter(ByteBuf outputBuffer) {
-			this.outputBuffer = requireNonNull(outputBuffer);
-		}
-
-		@Override
-		public void accept(String t) {
-			byte[] partBytes = t.getBytes(StandardCharsets.UTF_8);
-			outputBuffer.writeBytes(partBytes);
-			writtenBytes += partBytes.length;
-		}
-
-		public int getWrittenBytes() {
-			return writtenBytes;
-		}
-
 	}
 }

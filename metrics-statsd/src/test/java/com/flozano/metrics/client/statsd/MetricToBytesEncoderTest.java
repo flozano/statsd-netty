@@ -54,9 +54,7 @@ public class MetricToBytesEncoderTest {
 	@Test
 	public void toStringPartsTest() {
 		MetricValue metricValue = newMetric();
-		StringBuilder sb = new StringBuilder();
-		MetricToBytesEncoder.toStringParts(metricValue, sb::append);
-		assertThat(sb.toString(), is(equalTo(expectedValue(metricValue.getCode()))));
+		assertThat(MetricToBytesEncoder.toString(metricValue), is(equalTo(expectedValue(metricValue.getCode()))));
 	}
 
 
