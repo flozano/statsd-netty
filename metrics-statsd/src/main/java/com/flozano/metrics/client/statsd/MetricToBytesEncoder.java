@@ -57,7 +57,7 @@ class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 		Tags tags = msg.getTags();
 		if (!tags.isEmpty()) {
 		  parts.accept("|#");
-			parts.accept(tags
+		  parts.accept(tags
 					.stream()
 					.sorted()
 					.map(tag -> String.valueOf(tag.name) + ':' + tag.value)
