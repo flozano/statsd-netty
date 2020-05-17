@@ -3,9 +3,11 @@ package com.flozano.metrics.client.statsd;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.flozano.metrics.Tags;
 import com.flozano.metrics.client.MetricValue;
 import com.flozano.metrics.client.MetricsClient;
 
@@ -51,6 +53,16 @@ class MetricToBytesEncoder extends MessageToByteEncoder<MetricValue> {
 			parts.accept("|@");
 			parts.accept(String.format("%1.2f", r));
 		}
-	}
 
+		Tags tags = msg.getTags();
+		if (!tags.isEmpty()) {
+		  parts.accept("|#");
+			parts.accept(tags
+					.stream()
+					.sorted()
+					.map(tag -> String.valueOf(tag.name) + ':' + tag.value)
+					.collect(Collectors.joining(","))
+			);
+    }
+	}
 }
